@@ -89,7 +89,7 @@ textarea{min-height:100px;resize:vertical}.hidden{display:none!important}
 
 /* ── Intro v8.2 — StringTune-style scroll animations ─────────────────── */
 .intro{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 15% 10%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 38%),radial-gradient(ellipse at 85% 15%,color-mix(in srgb,var(--accent2) 15%,transparent),transparent 35%),radial-gradient(ellipse at 50% 90%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 50%),linear-gradient(160deg,#050604 0%,#0c0e0a 50%,#060705 100%);overflow:auto;scroll-snap-type:y proximity;transition:.6s;scroll-behavior:smooth}
-.intro.hide{opacity:0;pointer-events:none;filter:blur(10px) scale(.98)}
+.intro.hide{opacity:0;pointer-events:none;filter:blur(10px) scale(.98);display:none}
 /* Scroll progress bar — StringTune style */
 .intro-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:102;background:rgba(255,255,255,.06);pointer-events:none;transition:opacity .4s}
 .intro-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));border-radius:0 2px 2px 0;transition:width .08s linear;box-shadow:0 0 12px color-mix(in srgb,var(--accent) 60%,transparent)}
@@ -1712,8 +1712,8 @@ function applySettings(){const s=data.settings;if(s.pastel){document.body.classL
     if (_origCloseIntro) _origCloseIntro();
     const dotsEl = document.getElementById('introDots');
     if (dotsEl) dotsEl.classList.add('hide');
-    if (progressBar) progressBar.style.opacity = '0';
-    if (particlesEl) particlesEl.style.opacity = '0';
+    if (progressBar) progressBar.style.display = 'none';
+    if (particlesEl) particlesEl.style.display = 'none';
   };
 })();
 
@@ -1868,6 +1868,10 @@ function enterApp(){
     intro.classList.add('hide');
     const dots=document.getElementById('introDots');
     if(dots)dots.classList.add('hide');
+    const pb=document.getElementById('introProgress');
+    if(pb)pb.style.display='none';
+    const pt=document.getElementById('introParticles');
+    if(pt)pt.style.display='none';
   }
   timerTotal=settingsFocus()*60;remaining=timerTotal;tickRing();tickClock();
   show(data.settings.defaultView||'dashboard');
