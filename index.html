@@ -2534,51 +2534,24 @@ function uStartClock(canvas){if(uClockRaf)cancelAnimationFrame(uClockRaf);var ct
 })();
 
 
-// ── v8.5: Firebase Cloud Sync (paste your config below) ─────────────────────
-// INSTRUCTIONS:
-// 1. Go to https://console.firebase.google.com
-// 2. Click "Add project" → name it "lews-tracker" → Create
-// 3. Go to Build → Realtime Database → Create Database → Start in test mode
-// 4. Go to Project Settings (gear icon) → scroll to "Your apps" → click Web (</>)
-// 5. Register app → copy the firebaseConfig object
-// 6. Paste it below replacing the placeholder
+// ── v8.5: Google Sheets Cloud Sync ───────────────────────────────────────────
+var SHEET_API='https://script.google.com/macros/s/AKfycbzoqRWY5uEnHW6eYxpGcoT_MXipNv3FfPTu0kfdOCwU8D0VoR_lt6KvksExVUIn3s1E/exec';
 
-var FIREBASE_CONFIG = {apiKey:"AIzaSyDNjZGEQMIpU5RMRnOknJaz5bSbK1qbz6o",authDomain:"lews-tracker.firebaseapp.com",databaseURL:"https://lews-tracker-default-rtdb.firebaseio.com",projectId:"lews-tracker",storageBucket:"lews-tracker.firebasestorage.app",messagingSenderId:"857710049437",appId:"1:857710049437:web:0504e85430b1fe39913c74"}
+var _syncTimer=null;
+var _syncing=false;
 
-function initFirebase(){
-  if(!FIREBASE_CONFIG||!FIREBASE_CONFIG.databaseURL)return;
-  var s1=document.createElement('script');
-  s1.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
-  s1.onload=function(){
-    var s2=document.createElement('script');
-    s2.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js';
-    s2.onload=function(){
-      firebase.initializeApp(FIREBASE_CONFIG);
-      window._fbDB=firebase.database();
-      toastMsg('Cloud sync connected');
-      // Pull accounts + user data
-      fbPullAccounts();
-      if(currentUser)fbPull();
-    };
-    document.head.appendChild(s2);
-  };
-  document.head.appendChild(s1);
-}
-
-// ── Sync user accounts to cloud ──
-function fbPushAccounts(){
-  if(!window._fbDB)return;
+// Push accounts to Google Sheet
+function gsPushAccounts(){
+  if(!SHEET_API||_syncing)return;
   var users=getUsers();
-  window._fbDB.ref('_accounts').set(users).then(function(){
-  }).catch(function(e){console.log('Account sync error:',e);});
+  fetch(SHEET_API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveAccounts',data:users}),mode:'no-cors'}).catch(function(e){console.log('Account sync error:',e);});
 }
 
-function fbPullAccounts(){
-  if(!window._fbDB)return;
-  window._fbDB.ref('_accounts').once('value').then(function(snap){
-    var cloud=snap.val();
+// Pull accounts from Google Sheet
+function gsPullAccounts(){
+  if(!SHEET_API)return;
+  fetch(SHEET_API+'?action=getAccounts').then(function(r){return r.json();}).then(function(cloud){
     if(cloud&&Array.isArray(cloud)&&cloud.length>0){
-      // Merge: add any cloud accounts not in local
       var local=getUsers();
       var localNames=local.map(function(u){return u.username.toLowerCase();});
       var added=0;
@@ -2596,19 +2569,21 @@ function fbPullAccounts(){
   }).catch(function(e){console.log('Account pull error:',e);});
 }
 
-// ── Sync user task/note/budget data ──
-function fbPush(){
-  if(!window._fbDB||!currentUser)return;
-  window._fbDB.ref('users/'+currentUser).set(data).then(function(){
+// Push user data to Google Sheet
+function gsPush(){
+  if(!SHEET_API||!currentUser||_syncing)return;
+  _syncing=true;
+  fetch(SHEET_API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveData',user:currentUser,data:data}),mode:'no-cors'}).then(function(){
+    _syncing=false;
     toastMsg('Synced to cloud');
-  }).catch(function(e){console.log('Sync error:',e);});
-  fbPushAccounts();
+  }).catch(function(e){_syncing=false;console.log('Sync error:',e);});
+  gsPushAccounts();
 }
 
-function fbPull(){
-  if(!window._fbDB||!currentUser)return;
-  window._fbDB.ref('users/'+currentUser).once('value').then(function(snap){
-    var cloud=snap.val();
+// Pull user data from Google Sheet
+function gsPull(){
+  if(!SHEET_API||!currentUser)return;
+  fetch(SHEET_API+'?action=getData&user='+encodeURIComponent(currentUser)).then(function(r){return r.json();}).then(function(cloud){
     if(cloud&&cloud.tasks){
       data=Object.assign(structuredClone(data),cloud);
       save();renderAll();applySettings();
@@ -2617,28 +2592,32 @@ function fbPull(){
   }).catch(function(e){console.log('Pull error:',e);});
 }
 
-// Auto-sync on save (debounced)
-var _fbSyncTimer=null;
+// Auto-sync on save (debounced 5 seconds)
 var _origSave=window.save;
 if(typeof _origSave==='function'){
   window.save=function(){
     _origSave();
-    clearTimeout(_fbSyncTimer);
-    _fbSyncTimer=setTimeout(fbPush,5000);
+    clearTimeout(_syncTimer);
+    _syncTimer=setTimeout(gsPush,5000);
   };
 }
 
-// Also sync accounts when registering or removing users
+// Sync accounts on register/remove
 var _origSaveUsers=window.saveUsers;
 if(typeof _origSaveUsers==='function'){
   window.saveUsers=function(u){
     _origSaveUsers(u);
-    setTimeout(fbPushAccounts,500);
+    setTimeout(gsPushAccounts,500);
   };
 }
 
 // Init on page load
-setTimeout(initFirebase,1000);
+setTimeout(function(){
+  if(!SHEET_API)return;
+  toastMsg('Cloud sync connected');
+  gsPullAccounts();
+  if(currentUser)gsPull();
+},1500);
 
 // PWA service worker registration
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{}));}
