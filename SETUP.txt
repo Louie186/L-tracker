@@ -1,0 +1,121 @@
+LEW'S TRACKER v8.2 — SETUP GUIDE
+===================================
+
+FOLDER CONTENTS
+---------------
+lews_tracker_v8_2.html  ← Main app (open this in any browser)
+manifest.json          ← PWA install support
+service-worker.js      ← Offline caching
+icon-192.png           ← App icon (add your own 192x192 PNG)
+icon-512.png           ← App icon (add your own 512x512 PNG)
+img/                   ← Urume-chan pet sprites (copy from original)
+SETUP.txt              ← This file
+
+QUICK START
+-----------
+1. Put all files in one folder (keep img/ folder alongside)
+2. Open lews_tracker_v8_2.html in Chrome, Edge, or Safari
+3. On phone: tap Share → Add to Home Screen to install as app
+
+NEW IN v8.2
+-----------
+✓ 5-tab mobile nav (Dashboard, Tasks, Focus, Calendar, More)
+✓ Per-task time logging — tap ⏱ on any task row
+✓ Recurring tasks — daily / weekly / fortnightly / monthly
+✓ Undo delete — 5-second undo button on toast
+✓ Global search — Ctrl+K or tap ⌕ Search in top bar
+✓ Subtask progress bar visible on every task row
+✓ Weekly 7-day strip on Dashboard
+✓ Currency selector per budget (QAR, PHP, AED, USD, etc.)
+✓ Color picker + 4 theme packs (Gold, Ocean, Forest, Charcoal)
+✓ Glassmorphism card toggle
+✓ Auto dark/light from system preference
+✓ Fixed light mode (warmer, accessible accent colors)
+✓ Circular SVG focus timer ring
+✓ Count-up animation on KPI numbers
+✓ Animated progress bars
+✓ Toast slide in/out animation
+✓ Escape key closes any open modal
+✓ Board view horizontal swipe on phones
+✓ Pet scaled 72% on phones to avoid covering content
+✓ FAB button respects iOS safe-area
+✓ Silent auto email backup via EmailJS
+
+AUTO EMAIL BACKUP SETUP (optional)
+------------------------------------
+Backup sends silently to carlorinia@gmail.com every 7 days.
+
+1. Go to https://www.emailjs.com and create a free account
+2. Add a Gmail service → copy your Service ID
+3. Create an Email Template with these variables:
+      To:       {{to_email}}
+      Subject:  Lew's Tracker Backup — {{backup_date}}
+      Body:
+        Date: {{backup_date}}
+        Stats: {{backup_stats}}
+
+        --- JSON BACKUP (copy and save as .json) ---
+        {{backup_data}}
+4. Copy your Public Key, Service ID, Template ID
+5. In the tracker: Settings → Auto Email Backup → paste keys
+6. Click "Test Send Now" to verify
+
+PWA INSTALL (phone home screen)
+---------------------------------
+Chrome/Edge Android:
+  Tap ⋮ menu → Add to Home screen
+
+Safari iOS:
+  Tap Share → Add to Home Screen
+
+This gives you full-screen app experience, no browser chrome.
+
+ICONS
+------
+Replace icon-192.png and icon-512.png with your own branded images.
+Simple option: use any online favicon generator with "LT" text.
+
+DATA STORAGE
+-------------
+All data is saved in your browser's localStorage.
+IMPORTANT: Export a backup JSON regularly (Settings → Export).
+The email backup also handles this automatically if configured.
+
+Lew's Tracker v8.2 — Built for BIM, Melliea ♡
+
+NODE.JS WORD EXPORT (optional, for .docx format)
+--------------------------------------------------
+The browser Word export (⬇ Word button) gives you a .doc file that Word opens fine.
+For a proper .docx with full Word formatting, use the included Node.js script:
+
+  1. Install Node.js from https://nodejs.org (if not already installed)
+  2. In the tracker folder, run: npm install
+  3. Export a JSON backup from Settings → Export
+  4. Run: node export-to-docx.js your-backup.json
+  5. Opens as a formatted Word document with priority-colour rows
+
+PWA ICONS
+----------
+icon-192.png and icon-512.png are now included — branded gold "L" design.
+These are referenced by manifest.json automatically.
+
+MULTI-USER SETUP (v8.2)
+------------------------
+The tracker now supports multiple users, each with their own data.
+
+First launch:
+  Open lews_tracker_v8_2.html → you will see a Sign In screen
+  Click "Create Account" → choose a username and password
+  Your data is stored separately from every other user
+
+Sharing your setup with another user:
+  Settings → Users & Sharing → Download My Data
+  Send the downloaded .json file to the other person
+  They open their own account → Settings → Import / Load Shared
+  They confirm the import → their tracker loads your tasks & templates
+
+Security notes:
+  Passwords are hashed with SHA-256 before storage
+  Each user's data is isolated in their own browser storage key
+  Sessions last 30 days — sign out manually for immediate lock
+  This is local browser storage only — not synced to a server
