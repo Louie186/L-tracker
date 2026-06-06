@@ -273,9 +273,11 @@ body.light .top{background:transparent}
 .quick input{font-size:.94rem;padding:12px 13px}
 .hint{color:var(--muted);font-size:.74rem;margin:-4px 0 12px}
 /* v8.5: Smooth page transitions */
-.view{display:none;opacity:0;transform:translateX(30px);transition:opacity .32s cubic-bezier(.16,1,.3,1),transform .38s cubic-bezier(.16,1,.3,1)}
-.view.active{display:block;opacity:1;transform:none}
-.view.exiting-view{display:block;opacity:0;transform:translateX(-30px);transition:opacity .2s ease,transform .25s ease}
+.view{display:none}
+.view.active{display:block;animation:viewIn .3s cubic-bezier(.16,1,.3,1)}
+.view.exiting-view{display:block;animation:viewOut .2s ease forwards}
+@keyframes viewIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+@keyframes viewOut{to{opacity:0;transform:translateX(-20px)}}
 .grid{display:grid;gap:11px}.grid.auto{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.grid.two{grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))}
 .card{border:1px solid var(--line);background:linear-gradient(180deg,var(--soft),rgba(255,255,255,.02)),var(--panel);backdrop-filter:blur(calc(14px + var(--glass)*14px));border-radius:var(--r);box-shadow:var(--shadow);padding:calc(13px - var(--compact)*3px);overflow:hidden;min-width:0}
 .card h3{margin:0 0 12px;font-size:.9rem;text-transform:uppercase;letter-spacing:.05em}
@@ -1143,38 +1145,20 @@ function initNav(){
   mobileNav.innerHTML=mobileHtml;
 }
 // v8.5: Smooth page transitions
-let _showTransitioning=false;
 function show(id){
   const next=document.getElementById(id);
   if(!next)return;
-  const current=document.querySelector('.view.active');
-  // Update nav highlights immediately
+  // Update nav highlights
   document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
   pageTitle.textContent=views[id][0];
   pageSub.textContent=views[id][1];
   const activeNav=nav.querySelector(`[data-view="${id}"]`);
   if(activeNav&&navIndicator){navIndicator.style.top=activeNav.offsetTop+'px';}
-  // If same view or no current, just show directly
-  if(!current||current===next||_showTransitioning){
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active','exiting-view'));
-    next.classList.add('active');
-    renderAll();updateCalcFab(id);return;
-  }
-  _showTransitioning=true;
-  // Exit animation on current view
-  current.classList.add('exiting-view');
-  current.classList.remove('active');
-  setTimeout(()=>{
-    current.classList.remove('exiting-view');
-    current.style.display='none';
-    // Enter animation on next view
-    next.style.display='block';
-    next.offsetHeight; // force reflow
-    next.classList.add('active');
-    renderAll();
-    _showTransitioning=false;
-    updateCalcFab(id);
-  },220);
+  // Switch views
+  document.querySelectorAll('.view').forEach(v=>{v.classList.remove('active','exiting-view');v.style.display='';});
+  next.classList.add('active');
+  renderAll();
+  if(typeof updateCalcFab==='function')updateCalcFab(id);
 }
 function closeIntro(){intro.classList.add('hide');if(data){data.settings.introSeen=true;save();}}
 function openCommand(){openModal('commandModal')}
