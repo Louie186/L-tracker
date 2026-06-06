@@ -2569,7 +2569,8 @@ function initFirebase(){
       firebase.initializeApp(FIREBASE_CONFIG);
       window._fbDB=firebase.database();
       toastMsg('Cloud sync connected');
-      // Pull cloud data on login
+      // Pull accounts + user data
+      fbPullAccounts();
       if(currentUser)fbPull();
     };
     document.head.appendChild(s2);
@@ -2577,11 +2578,44 @@ function initFirebase(){
   document.head.appendChild(s1);
 }
 
+// ── Sync user accounts to cloud ──
+function fbPushAccounts(){
+  if(!window._fbDB)return;
+  var users=getUsers();
+  window._fbDB.ref('_accounts').set(users).then(function(){
+  }).catch(function(e){console.log('Account sync error:',e);});
+}
+
+function fbPullAccounts(){
+  if(!window._fbDB)return;
+  window._fbDB.ref('_accounts').once('value').then(function(snap){
+    var cloud=snap.val();
+    if(cloud&&Array.isArray(cloud)&&cloud.length>0){
+      // Merge: add any cloud accounts not in local
+      var local=getUsers();
+      var localNames=local.map(function(u){return u.username.toLowerCase();});
+      var added=0;
+      cloud.forEach(function(cu){
+        if(cu&&cu.username&&localNames.indexOf(cu.username.toLowerCase())===-1){
+          local.push(cu);
+          added++;
+        }
+      });
+      if(added>0){
+        saveUsers(local);
+        toastMsg(added+' account(s) synced from cloud');
+      }
+    }
+  }).catch(function(e){console.log('Account pull error:',e);});
+}
+
+// ── Sync user task/note/budget data ──
 function fbPush(){
   if(!window._fbDB||!currentUser)return;
   window._fbDB.ref('users/'+currentUser).set(data).then(function(){
     toastMsg('Synced to cloud');
   }).catch(function(e){console.log('Sync error:',e);});
+  fbPushAccounts();
 }
 
 function fbPull(){
@@ -2589,7 +2623,6 @@ function fbPull(){
   window._fbDB.ref('users/'+currentUser).once('value').then(function(snap){
     var cloud=snap.val();
     if(cloud&&cloud.tasks){
-      // Merge: cloud data wins if newer
       data=Object.assign(structuredClone(data),cloud);
       save();renderAll();applySettings();
       toastMsg('Cloud data loaded');
@@ -2604,7 +2637,16 @@ if(typeof _origSave==='function'){
   window.save=function(){
     _origSave();
     clearTimeout(_fbSyncTimer);
-    _fbSyncTimer=setTimeout(fbPush,5000); // sync 5s after last save
+    _fbSyncTimer=setTimeout(fbPush,5000);
+  };
+}
+
+// Also sync accounts when registering or removing users
+var _origSaveUsers=window.saveUsers;
+if(typeof _origSaveUsers==='function'){
+  window.saveUsers=function(u){
+    _origSaveUsers(u);
+    setTimeout(fbPushAccounts,500);
   };
 }
 
