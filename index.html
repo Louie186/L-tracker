@@ -2536,21 +2536,39 @@ function uStartClock(canvas){if(uClockRaf)cancelAnimationFrame(uClockRaf);var ct
 
 // ── v8.5: Google Sheets Cloud Sync ───────────────────────────────────────────
 var SHEET_API='https://script.google.com/macros/s/AKfycbzoqRWY5uEnHW6eYxpGcoT_MXipNv3FfPTu0kfdOCwU8D0VoR_lt6KvksExVUIn3s1E/exec';
-
 var _syncTimer=null;
 var _syncing=false;
 
-// Push accounts to Google Sheet
-function gsPushAccounts(){
-  if(!SHEET_API||_syncing)return;
-  var users=getUsers();
-  fetch(SHEET_API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveAccounts',data:users}),mode:'no-cors'}).catch(function(e){console.log('Account sync error:',e);});
+// POST helper — Apps Script needs redirect:follow and text/plain
+function gsPost(payload){
+  return fetch(SHEET_API,{
+    method:'POST',
+    redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  });
 }
 
-// Pull accounts from Google Sheet
+// GET helper
+function gsGet(params){
+  var url=SHEET_API+'?'+Object.keys(params).map(function(k){return k+'='+encodeURIComponent(params[k]);}).join('&');
+  return fetch(url,{redirect:'follow'});
+}
+
+// Push accounts
+function gsPushAccounts(){
+  if(!SHEET_API)return;
+  gsPost({action:'saveAccounts',data:getUsers()}).then(function(r){
+    return r.text();
+  }).then(function(t){
+    console.log('Accounts pushed:',t);
+  }).catch(function(e){console.log('Account sync error:',e);});
+}
+
+// Pull accounts
 function gsPullAccounts(){
   if(!SHEET_API)return;
-  fetch(SHEET_API+'?action=getAccounts').then(function(r){return r.json();}).then(function(cloud){
+  gsGet({action:'getAccounts'}).then(function(r){return r.json();}).then(function(cloud){
     if(cloud&&Array.isArray(cloud)&&cloud.length>0){
       var local=getUsers();
       var localNames=local.map(function(u){return u.username.toLowerCase();});
@@ -2569,21 +2587,24 @@ function gsPullAccounts(){
   }).catch(function(e){console.log('Account pull error:',e);});
 }
 
-// Push user data to Google Sheet
+// Push user data
 function gsPush(){
   if(!SHEET_API||!currentUser||_syncing)return;
   _syncing=true;
-  fetch(SHEET_API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveData',user:currentUser,data:data}),mode:'no-cors'}).then(function(){
+  gsPost({action:'saveData',user:currentUser,data:data}).then(function(r){
+    return r.text();
+  }).then(function(t){
     _syncing=false;
+    console.log('Data pushed:',t);
     toastMsg('Synced to cloud');
   }).catch(function(e){_syncing=false;console.log('Sync error:',e);});
   gsPushAccounts();
 }
 
-// Pull user data from Google Sheet
+// Pull user data
 function gsPull(){
   if(!SHEET_API||!currentUser)return;
-  fetch(SHEET_API+'?action=getData&user='+encodeURIComponent(currentUser)).then(function(r){return r.json();}).then(function(cloud){
+  gsGet({action:'getData',user:currentUser}).then(function(r){return r.json();}).then(function(cloud){
     if(cloud&&cloud.tasks){
       data=Object.assign(structuredClone(data),cloud);
       save();renderAll();applySettings();
