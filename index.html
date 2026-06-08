@@ -1407,6 +1407,97 @@ function deleteTaskFile(tid,fid){const t=ensure(data.tasks.find(x=>x.id===tid));
 function toastMsg(m,dur=2400){let d=document.createElement('div');d.innerHTML='<span>'+m+'</span>';toast.prepend(d);setTimeout(()=>{d.style.animation='toastOut .25s ease forwards';setTimeout(()=>d.remove(),260)},dur)}
 function toastUndo(msg,onUndo){if(undoTimeout)clearTimeout(undoTimeout);let d=document.createElement('div');d.style.justifyContent='space-between';d.innerHTML='<span>'+msg+'</span><button class="btn" style="padding:3px 9px;font-size:.65rem;min-height:unset" onclick="this.closest(\'div\').remove();_doUndo()">Undo</button>';window._doUndo=()=>{if(onUndo){onUndo();window._doUndo=null;}};toast.prepend(d);undoTimeout=setTimeout(()=>{if(d.isConnected){d.style.animation='toastOut .25s ease forwards';setTimeout(()=>d.remove(),260);}window._doUndo=null;},5000)}
 
+// ── DOM element references ────────────────────────────────────────────────────
+const intro=document.getElementById('intro');
+const toast=document.getElementById('toast');
+const nav=document.getElementById('nav');
+const mobileNav=document.getElementById('mobileNav');
+const pageTitle=document.getElementById('pageTitle');
+const pageSub=document.getElementById('pageSub');
+const navIndicator=document.getElementById('navIndicator');
+const quickInput=document.getElementById('quickInput');
+const quickModalInput=document.getElementById('quickModalInput');
+const globalSearchInput=document.getElementById('globalSearchInput');
+// Tasks
+const taskArea=document.getElementById('taskArea');
+const taskSearch=document.getElementById('taskSearch');
+const taskFilter=document.getElementById('taskFilter');
+const taskSort=document.getElementById('taskSort');
+const modeBtn=document.getElementById('modeBtn');
+// Task modal
+const taskId=document.getElementById('taskId');
+const taskTitle=document.getElementById('taskTitle');
+const taskPriority=document.getElementById('taskPriority');
+const taskStatus=document.getElementById('taskStatus');
+const taskDue=document.getElementById('taskDue');
+const taskTags=document.getElementById('taskTags');
+const taskRefs=document.getElementById('taskRefs');
+const taskRecurring=document.getElementById('taskRecurring');
+// Templates
+const templateArea=document.getElementById('templateArea');
+const templateName=document.getElementById('templateName');
+const templateLines=document.getElementById('templateLines');
+const templateId=document.getElementById('templateId');
+// Notes
+const noteList=document.getElementById('noteList');
+const noteSearch=document.getElementById('noteSearch');
+const noteTitle=document.getElementById('noteTitle');
+const noteBody=document.getElementById('noteBody');
+const noteId=document.getElementById('noteId');
+const noteTask=document.getElementById('noteTask');
+// Finance
+const budgetList=document.getElementById('budgetList');
+const financeLock=document.getElementById('financeLock');
+// Calendar
+const calendarGrid=document.getElementById('calendarGrid');
+const monthLabel=document.getElementById('monthLabel');
+const selectedTitle=document.getElementById('selectedTitle');
+const dayList=document.getElementById('dayList');
+// Focus
+const focusTop=document.getElementById('focusTop');
+// Insights
+const insightHero=document.getElementById('insightHero');
+const insightCards=document.getElementById('insightCards');
+const duePressure=document.getElementById('duePressure');
+const nextAction=document.getElementById('nextAction');
+// Dashboard
+const dashStats=document.getElementById('dashStats');
+const dashCommand=document.getElementById('dashCommand');
+// KPIs
+const kOpen=document.getElementById('kOpen');
+const kOverdue=document.getElementById('kOverdue');
+const kToday=document.getElementById('kToday');
+const kPendingPay=document.getElementById('kPendingPay');
+const todayTxt=document.getElementById('todayTxt');
+// Storage
+const storageBar=document.getElementById('storageBar');
+const storageTxt=document.getElementById('storageTxt');
+// Settings inputs
+const fontRange=document.getElementById('fontRange');
+const fontLabel=document.getElementById('fontLabel');
+const tabScaleRange=document.getElementById('tabScaleRange');
+const tabScaleLabel=document.getElementById('tabScaleLabel');
+const financeScaleRange=document.getElementById('financeScaleRange');
+const financeScaleLabel=document.getElementById('financeScaleLabel');
+const fontSelect=document.getElementById('fontSelect');
+const accentSelect=document.getElementById('accentSelect');
+const accentPicker=document.getElementById('accentPicker');
+const radiusRange=document.getElementById('radiusRange');
+const compactToggle=document.getElementById('compactToggle');
+const glassToggle=document.getElementById('glassToggle');
+const autoThemeToggle=document.getElementById('autoThemeToggle');
+const reduceMotionToggle=document.getElementById('reduceMotionToggle');
+const introToggle=document.getElementById('introToggle');
+const autoBackupHint=document.getElementById('autoBackupHint');
+const defaultView=document.getElementById('defaultView');
+const focusDefault=document.getElementById('focusDefault');
+const brandTitleInput=document.getElementById('brandTitleInput');
+const brandSubInput=document.getElementById('brandSubInput');
+const brandLogoInput=document.getElementById('brandLogoInput');
+const financePassInput=document.getElementById('financePassInput');
+const noteModalTitle=document.getElementById('noteModalTitle');
+const taskModalTitle=document.getElementById('taskModalTitle');
+
 // ── Navigation ────────────────────────────────────────────────────────────────
 function initNav(){
   const html=Object.keys(views).map(id=>`<button data-view="${id}" onclick="show('${id}')"><span class="navicon">${icons[id]}</span><span>${views[id][0]}</span></button>`).join('');
