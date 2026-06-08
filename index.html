@@ -4,14 +4,86 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#d8b76d">
+<meta name="description" content="Lew's Tracker — BIM Command Center. Tasks, focus timer, calendar, notes, finance budgets. Mobile-ready, cloud sync, multi-user.">
+<meta name="keywords" content="BIM tracker, task manager, productivity, construction, design consultancy">
+<meta name="author" content="Lew">
+<!-- Open Graph / Social Share -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://louie186.github.io/L-tracker/">
+<meta property="og:title" content="Lew's Tracker — BIM Command Center">
+<meta property="og:description" content="Mobile-ready BIM task tracker with focus timer, calendar, notes, finance, and cloud sync.">
+<meta property="og:image" content="https://louie186.github.io/L-tracker/icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lew's Tracker — BIM Command Center">
+<meta name="twitter:description" content="Mobile-ready BIM task tracker with focus timer, calendar, notes, finance, and cloud sync.">
 <link rel="manifest" href="manifest.json">
-<title>Lew's Tracker v8.5</title>
+<title>Lew's Tracker v8.8</title>
 <style>
 :root{color-scheme:dark;--bg:#070807;--bg2:#10120f;--panel:rgba(18,20,16,.78);--soft:rgba(255,255,255,.06);--soft2:rgba(255,255,255,.10);--ink:#f8f2e8;--muted:#aaa297;--line:rgba(255,255,255,.13);--accent:#d8b76d;--accent2:#ff9655;--green:#97dc8d;--red:#ff7474;--shadow:0 18px 55px rgba(0,0,0,.34);--r:22px;--fs:1;--tabscale:1;--finScale:1;--compact:0;--font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--glass:0;--nav-h:64px}
 body.light{color-scheme:light;--bg:#eef1ed;--bg2:#f7f8f4;--panel:rgba(251,250,244,.9);--soft:rgba(40,56,60,.055);--soft2:rgba(40,56,60,.10);--ink:#202521;--muted:#5a6360;--line:rgba(40,56,60,.15);--shadow:0 18px 45px rgba(65,75,70,.12);--accent:#a07830;--accent2:#cc6622}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
 body{margin:0;min-height:100svh;font-family:var(--font);font-size:calc(15px*var(--fs));color:var(--ink);background:radial-gradient(circle at 12% 5%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 34%),radial-gradient(circle at 88% 8%,color-mix(in srgb,var(--accent2) 12%,transparent),transparent 28%),linear-gradient(145deg,var(--bg),var(--bg2));overflow-x:hidden}
 body:before{content:"";position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:78px 78px;mask-image:radial-gradient(circle,#000,transparent 78%)}
+
+/* ── Melliea Theme (rose gold / blush) ─────────────────────────────────── */
+body.melliea{color-scheme:light;--bg:#fdf0f3;--bg2:#fff5f7;--panel:rgba(255,240,243,.9);--soft:rgba(180,80,100,.055);--soft2:rgba(180,80,100,.10);--ink:#2d1a1f;--muted:#8a5f6a;--line:rgba(180,80,100,.18);--shadow:0 18px 45px rgba(160,60,80,.12);--accent:#c8748e;--accent2:#e8a0b0;--green:#7dba8f;--red:#e05050;--r:22px}
+body.melliea{background:radial-gradient(circle at 12% 5%,rgba(200,116,142,.18),transparent 34%),radial-gradient(circle at 88% 8%,rgba(232,160,176,.12),transparent 28%),linear-gradient(145deg,#fdf0f3,#fff5f7)}
+body.melliea:before{background-image:linear-gradient(rgba(200,116,142,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(200,116,142,.04) 1px,transparent 1px)}
+/* Melliea watermark */
+body.melliea .app-wrap:after{content:"Melliea";position:fixed;bottom:30%;left:50%;transform:translateX(-50%) rotate(-15deg);font-size:8rem;font-weight:900;color:rgba(200,116,142,.04);pointer-events:none;z-index:0;letter-spacing:.2em;white-space:nowrap}
+/* Floating hearts (idle only) */
+.heart-float{position:fixed;pointer-events:none;z-index:9999;font-size:1.2rem;animation:heartRise 4s ease-out forwards;opacity:0}
+@keyframes heartRise{0%{opacity:.7;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-200px) scale(.3)}}
+
+/* ── Skeleton loading screens ────────────────────────────────────────────── */
+.skeleton{background:linear-gradient(90deg,var(--soft) 25%,var(--soft2) 50%,var(--soft) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-row{height:14px;border-radius:6px;margin-bottom:8px}
+.skeleton-card{border-radius:var(--r);padding:14px;border:1px solid var(--line);margin-bottom:10px}
+
+/* ── Context menu ────────────────────────────────────────────────────────── */
+#ctxMenu{position:fixed;z-index:999;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:var(--shadow);backdrop-filter:blur(18px);display:none;min-width:160px}
+#ctxMenu button{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;color:var(--ink);padding:8px 12px;border-radius:8px;font-size:.8rem;cursor:pointer;text-align:left}
+#ctxMenu button:hover{background:var(--soft2)}
+#ctxMenu .ctx-divider{height:1px;background:var(--line);margin:4px 6px}
+#ctxMenu .ctx-danger{color:var(--red)}
+
+/* ── Cookie consent ──────────────────────────────────────────────────────── */
+#cookieBanner{position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--panel);border-top:1px solid var(--line);backdrop-filter:blur(18px);padding:14px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+#cookieBanner b{color:var(--ink)}
+#cookieBanner .btn{min-width:80px;justify-content:center}
+#cookieBanner.hidden{display:none}
+
+/* ── Micro-interactions ─────────────────────────────────────────────────── */
+.btn{transition:.18s cubic-bezier(.34,1.56,.64,1)}
+.btn:active{transform:scale(.94)!important}
+.icon:active{transform:scale(.88)!important}
+.item{transition:.18s cubic-bezier(.34,1.56,.64,1)}
+.item:hover{transform:translateY(-2px) scale(1.005)}
+
+/* ── Today is special banner ─────────────────────────────────────────────── */
+#specialBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:250;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:10px 20px;text-align:center;font-size:.85rem;font-weight:700;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+#specialBanner.show{display:block}
+#specialBanner .close-banner{float:right;background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;margin-top:-2px}
+
+/* ── Anniversary countdown widget ───────────────────────────────────────── */
+.melliea-countdown{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 15%,transparent),color-mix(in srgb,var(--accent2) 8%,transparent));border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:12px}
+.melliea-countdown .count-num{font-size:2.4rem;font-weight:950;color:var(--accent);line-height:1}
+.melliea-countdown .count-label{font-size:.7rem;color:var(--muted);margin-top:4px}
+.daily-quote{background:color-mix(in srgb,var(--accent) 8%,transparent);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:12px 14px;margin-bottom:12px;font-style:italic;color:var(--muted);font-size:.82rem}
+
+/* ── Dedication secret page ──────────────────────────────────────────────── */
+#dedicationOverlay{position:fixed;inset:0;z-index:201;background:linear-gradient(145deg,#1a0810,#2d0f1e,#1a0810);display:none;place-items:center;padding:20px;animation:fadeInDedication .6s ease}
+@keyframes fadeInDedication{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+#dedicationOverlay.show{display:grid}
+.dedication-card{max-width:480px;width:100%;text-align:center;padding:40px 30px}
+.dedication-heart{font-size:4rem;animation:dedicationPulse 1.4s ease-in-out infinite}
+@keyframes dedicationPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.dedication-title{font-size:1.8rem;font-weight:950;letter-spacing:-.04em;margin:16px 0 8px;background:linear-gradient(135deg,#c8748e,#e8a0b0,#f5c8d5);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.dedication-subtitle{color:rgba(255,255,255,.5);font-size:.82rem;margin-bottom:24px}
+.dedication-msg{color:rgba(255,255,255,.8);font-size:.95rem;line-height:1.7;margin-bottom:24px}
+.dedication-close{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:999px;padding:8px 24px;cursor:pointer;font-size:.8rem;transition:.2s}
+.dedication-close:hover{background:rgba(255,255,255,.2)}
 button,input,textarea,select{font:inherit}button{cursor:pointer}
 /* Glassmorphism toggle */
 body.glass .card{backdrop-filter:blur(28px) saturate(1.4);border-color:color-mix(in srgb,var(--accent) 22%,rgba(255,255,255,.15));box-shadow:0 8px 32px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08)}
@@ -83,6 +155,15 @@ textarea{min-height:100px;resize:vertical}.hidden{display:none!important}
 .login-user-chip .avi{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#ffeab0);color:#0a0908;font-size:.7rem;font-weight:950;display:grid;place-items:center;flex:0 0 auto}
 .login-divider{display:flex;align-items:center;gap:10px;margin:10px 0;color:var(--muted);font-size:.7rem}
 .login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* Login polish v8.7 */
+.login-card{position:relative}
+.login-secure-badge{display:flex;justify-content:center;gap:6px;align-items:center;color:var(--muted);font-size:.68rem;margin:-14px 0 18px;text-align:center}
+.login-field{position:relative;margin-bottom:10px}.login-field input{margin-bottom:0;padding-right:44px}
+.login-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--muted);display:grid;place-items:center;cursor:pointer;font-size:.78rem}.login-eye:hover{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.login-actions-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 10px}.login-actions-row label{margin:0!important}.login-mini-btn{background:none;border:none;color:var(--accent);font-size:.72rem;cursor:pointer;text-decoration:underline;padding:0}
+.login-strength{height:5px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin:0 0 8px}.login-strength span{display:block;height:100%;width:0;background:var(--red);transition:.2s}.login-strength.ok span{background:var(--accent);width:66%}.login-strength.good span{background:var(--green);width:100%}
+.login-help{border:1px solid rgba(216,183,109,.18);background:rgba(216,183,109,.07);border-radius:14px;padding:9px 11px;color:var(--muted);font-size:.7rem;line-height:1.45;margin-top:12px}.login-card .btn[disabled]{opacity:.6;pointer-events:none}
 /* Security settings */
 .user-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(216,183,109,.1);border:1px solid rgba(216,183,109,.25);border-radius:999px;padding:4px 12px;font-size:.76rem;color:var(--accent);font-weight:700}
 .users-list-item{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:6px;font-size:.8rem}
@@ -413,6 +494,42 @@ body.light .top{background:transparent}
   .world-card b{font-size:1.2rem}
 }
 
+
+/* Appearance Studio v8.7 */
+body.bg-minimal:before{display:none}
+body.bg-flat{background:var(--bg)!important}
+body.bg-flat:before{display:none}
+body.bg-blueprint{background:radial-gradient(circle at 16% 8%,rgba(74,158,255,.16),transparent 32%),linear-gradient(145deg,#050b14,#07182b)!important}
+body.bg-blueprint:before{background-image:linear-gradient(rgba(141,185,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(141,185,255,.055) 1px,transparent 1px);background-size:42px 42px;mask-image:none}
+body.bg-bim-grid:before{background-image:linear-gradient(color-mix(in srgb,var(--accent) 10%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--accent) 10%,transparent) 1px,transparent 1px);background-size:36px 36px;mask-image:radial-gradient(circle,#000,transparent 84%)}
+body.bg-glow{background:radial-gradient(circle at 20% 15%,color-mix(in srgb,var(--accent) 26%,transparent),transparent 36%),radial-gradient(circle at 82% 12%,color-mix(in srgb,var(--accent2) 18%,transparent),transparent 34%),linear-gradient(145deg,var(--bg),var(--bg2))!important}
+body.bg-aurora{background:radial-gradient(ellipse at 12% 20%,rgba(151,220,141,.16),transparent 38%),radial-gradient(ellipse at 88% 18%,rgba(141,185,255,.16),transparent 36%),radial-gradient(ellipse at 50% 90%,rgba(216,183,109,.12),transparent 46%),linear-gradient(145deg,var(--bg),var(--bg2))!important}
+body.anim-none *,body.anim-none .card,body.anim-none .item{animation:none!important;transition:none!important}
+body.anim-subtle .intro-particles,body.anim-subtle .cursor-glow,body.anim-subtle .ambient-light{display:none!important}
+body.anim-subtle .card,body.anim-subtle .item{transition:.08s!important}
+body.icons-text .navicon{display:none!important}
+body.icons-symbol .navicon{font-family:ui-monospace,monospace}
+body.row-table #taskArea .list{display:block;overflow:auto}
+body.row-table .todo.item{display:grid;grid-template-columns:minmax(240px,1fr) auto;border-radius:8px;margin-bottom:4px;background:rgba(255,255,255,.018)}
+body.row-card .todo.item{padding:11px 12px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+body.row-minimal .todo.item{background:transparent;border-top:none;border-right:none;border-bottom:1px solid var(--line);border-radius:0;border-left-width:2px}
+body.density-comfort{--densityPad:1.15;--densityGap:1.15}
+body.density-standard{--densityPad:1;--densityGap:1}
+body.density-compact{--densityPad:.78;--densityGap:.8;--compact:1}
+body.density-ultra{--densityPad:.58;--densityGap:.62;--compact:1;font-size:calc(13px*var(--fs))}
+body.density-comfort .card{padding:calc((13px - var(--compact)*3px)*1.15)}
+body.density-compact .card{padding:calc((13px - var(--compact)*3px)*.82)}
+body.density-ultra .card{padding:calc((13px - var(--compact)*3px)*.66)}
+.appearance-studio{display:grid;gap:12px}
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.preset-card{border:1px solid var(--line);background:var(--soft);border-radius:16px;padding:11px;text-align:left;color:var(--ink);cursor:pointer;transition:.2s}
+.preset-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 50%,transparent);background:var(--soft2)}
+.preset-card b{display:block;font-size:.78rem;margin-bottom:3px}.preset-card span{font-size:.65rem;color:var(--muted)}
+.preview-stage{border:1px solid var(--line);border-radius:20px;padding:14px;background:linear-gradient(145deg,var(--soft),rgba(255,255,255,.02));display:grid;gap:10px}
+.preview-row{display:flex;gap:8px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:13px;padding:8px 10px;background:rgba(255,255,255,.035)}
+.preview-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.preview-kpi{border:1px solid var(--line);border-radius:14px;padding:9px;background:var(--soft)}
+.appearance-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px}
+.custom-css-box{font-family:ui-monospace,monospace;min-height:120px;font-size:.75rem}
 /* v8.5: Floating Calculator */
 #calcFloat{position:fixed;z-index:60;width:260px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,var(--soft2),rgba(255,255,255,.025)),var(--panel);backdrop-filter:blur(22px);box-shadow:0 18px 55px rgba(0,0,0,.45);display:none;overflow:hidden;right:18px;bottom:100px}
 #calcFloat.show{display:block;animation:pop .2s}
@@ -465,29 +582,71 @@ body.light .top{background:transparent}
 </style>
 </head>
 <body>
-<!-- ── Login Screen v8.2 ─────────────────────────────────────────────── -->
+
+<!-- ── Cookie Consent ─────────────────────────────────────────────────── -->
+<div id="cookieBanner" class="hidden">
+  <span>🍪 <b>This app</b> stores your data locally in your browser. No tracking. <a href="#" onclick="return false" style="color:var(--accent)">Learn more</a></span>
+  <button class="btn primary" onclick="acceptCookies()">Got it</button>
+</div>
+
+<!-- ── Today Is Special Banner ───────────────────────────────────────── -->
+<div id="specialBanner">
+  <span id="specialBannerMsg">🎉 Today is a special day!</span>
+  <button class="close-banner" onclick="document.getElementById('specialBanner').classList.remove('show')">×</button>
+</div>
+
+<!-- ── Context Menu ───────────────────────────────────────────────────── -->
+<div id="ctxMenu">
+  <button onclick="ctxAction('edit')">✎ Edit Task</button>
+  <button onclick="ctxAction('done')">✓ Mark Done</button>
+  <button onclick="ctxAction('focus')">◎ Set as Focus</button>
+  <div class="ctx-divider"></div>
+  <button onclick="ctxAction('delete')" class="ctx-danger">× Delete Task</button>
+</div>
+
+<!-- ── Dedication Overlay ────────────────────────────────────────────── -->
+<div id="dedicationOverlay">
+  <div class="dedication-card">
+    <div class="dedication-heart">💕</div>
+    <div class="dedication-title">For Melliea</div>
+    <div class="dedication-subtitle">Built with love, every line of code</div>
+    <div class="daily-quote" id="dedicationQuote" style="text-align:left;margin:0 0 20px"></div>
+    <div class="dedication-msg" id="dedicationMsg">
+      Every task completed, every deadline met — all of it inspired by you. 
+      This is your tracker too. 💛
+    </div>
+    <div id="dedicationCountdown" style="margin-bottom:20px"></div>
+    <button class="dedication-close" onclick="closeDedication()">Close ♡</button>
+  </div>
+</div>
+
+<!-- ── Login Screen v8.8 ─────────────────────────────────────────────── -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
-    <div class="login-logo">L</div>
+    <div class="login-logo" id="loginLogoEl">L</div>
     <h2>Lew's Tracker</h2>
-    <div class="sub">v8.5 · Multi-user</div>
+    <div class="sub">v8.8 · Secure multi-user · Cloud sync</div>
+    <div class="login-secure-badge">🔐 Accounts sync to the cloud · Guest stays local</div>
 
     <!-- Sign in form -->
     <div id="loginForm">
       <input id="loginUsername" placeholder="Username" autocomplete="username" autocapitalize="none">
-      <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
-      <label class="small" style="display:flex;align-items:center;gap:6px;margin:8px 0"><input type="checkbox" id="rememberMe" style="width:auto"> Remember me</label>
+      <div class="login-field"><input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password"><button class="login-eye" type="button" onclick="togglePwd('loginPassword',this)">👁</button></div>
+      <div class="login-actions-row"><label class="small" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="rememberMe" style="width:auto"> Remember me</label><button class="login-mini-btn" type="button" onclick="showRecovery()">Forgot password?</button></div>
       <button class="btn primary" onclick="doLogin()">Sign In →</button>
       <div class="login-err" id="loginErr"></div>
       <div class="login-switch">No account? <button onclick="showRegister()">Create one</button></div>
-      <div class="login-switch"><button onclick="showRecovery()">Forgot password?</button></div>
+      <div class="login-help">Tip: leave <b>Remember me</b> off if you want the login screen to return when the browser is closed.</div>
+      <div class="login-divider">or</div>
+      <button class="btn" onclick="doGuestLogin()" style="width:100%;justify-content:center;opacity:.7">👤 Continue as Guest</button>
+      <div class="login-help" style="margin-top:6px">Guest data is stored in this browser only and won't sync to the cloud.</div>
     </div>
 
     <!-- Register form -->
     <div id="registerForm" style="display:none">
       <input id="regUsername" placeholder="Choose username" autocapitalize="none">
-      <input id="regPassword" type="password" placeholder="Password (min 4 chars)">
-      <input id="regPassword2" type="password" placeholder="Confirm password">
+      <div class="login-field"><input id="regPassword" type="password" placeholder="Password (min 4 chars)" oninput="updatePwdStrength(this.value)"><button class="login-eye" type="button" onclick="togglePwd('regPassword',this)">👁</button></div><div class="login-strength" id="pwdStrength"><span></span></div>
+      <div class="login-field"><input id="regPassword2" type="password" placeholder="Confirm password"><button class="login-eye" type="button" onclick="togglePwd('regPassword2',this)">👁</button></div>
       <select id="regSecQ" style="margin-top:6px"><option value="">— Security question (for recovery) —</option><option value="pet">What was your first pet's name?</option><option value="city">What city were you born in?</option><option value="food">What is your favorite food?</option><option value="teacher">Who was your favorite teacher?</option><option value="street">What street did you grow up on?</option></select>
       <input id="regSecA" placeholder="Your answer" style="margin-top:6px">
       <button class="btn primary" onclick="doRegister()">Create Account</button>
@@ -503,9 +662,9 @@ body.light .top{background:transparent}
         <input id="recSecA" placeholder="Your answer">
       </div>
       <div class="login-divider">or</div>
-      <input id="recMasterCode" placeholder="Master reset code" type="password">
-      <input id="recNewPwd" type="password" placeholder="New password (min 4 chars)" style="margin-top:8px">
-      <input id="recNewPwd2" type="password" placeholder="Confirm new password" style="margin-top:6px">
+      <div class="login-field"><input id="recMasterCode" placeholder="Master reset code" type="password"><button class="login-eye" type="button" onclick="togglePwd('recMasterCode',this)">👁</button></div>
+      <div class="login-field" style="margin-top:8px"><input id="recNewPwd" type="password" placeholder="New password (min 4 chars)"><button class="login-eye" type="button" onclick="togglePwd('recNewPwd',this)">👁</button></div>
+      <div class="login-field" style="margin-top:6px"><input id="recNewPwd2" type="password" placeholder="Confirm new password"><button class="login-eye" type="button" onclick="togglePwd('recNewPwd2',this)">👁</button></div>
       <button class="btn primary" onclick="doRecovery()" style="margin-top:8px">Reset Password</button>
       <div class="login-err" id="recErr"></div>
       <div class="login-switch"><button onclick="showSignIn()">Back to sign in</button></div>
@@ -527,6 +686,7 @@ body.light .top{background:transparent}
   <button class="intro-dot-btn" onclick="scrollIntroTo(4)" title="Focus"></button>
   <button class="intro-dot-btn" onclick="scrollIntroTo(5)" title="Finance"></button>
   <button class="intro-dot-btn" onclick="scrollIntroTo(6)" title="Appearance"></button>
+  <button class="intro-dot-btn" onclick="scrollIntroTo(7)" title="Enter" style="background:color-mix(in srgb,var(--accent) 30%,transparent)"></button>
 </div>
 
 <!-- Title slide -->
@@ -541,8 +701,8 @@ body.light .top{background:transparent}
       </h1>
       <p style="margin:18px 0 22px;max-width:420px">Mobile-ready offline tracker — BIM tasks, focus time, calendar, notes, budgets, and backups. With per-task time logging, recurring tasks, global search, and silent email backup.</p>
       <div class="row">
-        <button class="btn primary" onclick="closeIntro()" style="font-size:.78rem;padding:10px 18px">Enter Tracker →</button>
         <button class="btn" onclick="openCommand()">L Command</button>
+        <button class="btn" onclick="scrollIntroTo(7)" style="opacity:.7">Skip tour →</button>
       </div>
     </div>
     <div class="orb">
@@ -716,6 +876,17 @@ body.light .top{background:transparent}
     </div>
   </div>
 </section>
+
+<!-- ── End slide — the ONLY way into the tracker ──────────────────────── -->
+<section class="intro-slide" id="introSlideEnd" style="min-height:100svh;display:grid;place-items:center;padding:32px;scroll-snap-align:start;text-align:center">
+  <div style="max-width:480px">
+    <div style="font-size:3.5rem;margin-bottom:16px;animation:corePulse 2.5s ease-in-out infinite">⌘</div>
+    <h2 style="margin:0 0 12px;font-size:clamp(32px,6vw,64px);letter-spacing:-.06em;line-height:.9">You're all set.</h2>
+    <p style="color:#bdb5a8;margin:0 0 32px;font-size:1rem;line-height:1.7">Everything you need to track, focus, and deliver — right here. Let's go.</p>
+    <button class="btn primary" onclick="closeIntro()" id="enterTrackerBtn" style="font-size:1rem;padding:14px 32px;border-radius:16px;letter-spacing:-.02em">Enter Lew's Tracker →</button>
+    <div class="small" style="margin-top:16px;opacity:.4">You can replay this intro any time from Settings</div>
+  </div>
+</section>
 </section>
 
 
@@ -736,6 +907,8 @@ body.light .top{background:transparent}
   <nav class="nav" id="nav"><div class="nav-indicator" id="navIndicator"></div></nav>
   <button id="petSideBtn" class="btn" style="width:100%;margin-top:8px;border-radius:14px;justify-content:center" onclick="uToggle()" title="Toggle Urume-chan Pet">🐾 Urume-chan</button>
   <div class="sidebox"><small id="todayTxt">Today</small><div class="track"><div class="fill" id="storageBar"></div></div><small id="storageTxt">0 KB</small></div>
+  <!-- Subtle dedication button — for Lew -->
+  <button onclick="openDedication()" title="💛" style="margin-top:auto;width:100%;background:none;border:none;color:rgba(255,255,255,.12);font-size:.65rem;padding:8px 4px;cursor:pointer;text-align:left;transition:.3s;border-radius:8px" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,.12)'">✦ Inspired by Melliea</button>
 </aside>
 
 <main class="main">
@@ -747,6 +920,7 @@ body.light .top{background:transparent}
       <button class="btn" onclick="importFile.click()">Import</button>
       <input id="importFile" type="file" accept=".json" hidden onchange="importData(event)">
       <button class="btn" onclick="toggleTheme()">Theme</button>
+      <button class="btn" onclick="forceReturnLogin()">Lock</button>
       <button class="btn primary" onclick="openQuick()">+ Add</button>
       <button onclick="openSecret()" style="width:8px;height:8px;border-radius:50%;background:var(--line);border:none;cursor:pointer;padding:0;opacity:.3;transition:.3s" title=" "></button>
     </div>
@@ -812,7 +986,7 @@ body.light .top{background:transparent}
       <div class="toolbar">
         <input id="taskSearch" placeholder="Search To Do...">
         <select id="taskSort" onchange="renderTasks()"><option value="dueAsc">Due ↑</option><option value="dueDesc">Due ↓</option><option value="createdDesc">Newest</option><option value="createdAsc">Oldest</option></select>
-        <select id="taskFilter"><option value="all">All status</option><option value="todo">To Do</option><option value="progress">In Progress</option><option value="waiting">Waiting</option><option value="done">Done</option></select>
+        <select id="taskFilter"><option value="all">All status</option><option value="todo">To Do</option><option value="progress">In Progress</option><option value="waiting">Waiting</option><option value="done">Done</option><option value="hasFiles">Has Files</option><option value="noFiles">No Files</option></select>
       </div>
       <div class="small" style="margin-bottom:10px">Done tasks always at bottom. Board cards draggable. Left stripe = priority. ⏱ = time log.</div>
       <div id="taskArea"></div>
@@ -892,9 +1066,41 @@ body.light .top{background:transparent}
         <label class="small"><input type="checkbox" id="compactToggle" onchange="setCompact(this.checked)" style="width:auto"> Compact cards</label><br>
         <label class="small"><input type="checkbox" id="glassToggle" onchange="setGlass(this.checked)" style="width:auto"> Glassmorphism</label><br>
         <label class="small"><input type="checkbox" id="pastelToggle" onchange="togglePastel(this.checked)" style="width:auto"> Pastel mode (reduce eye strain)</label><br>
+        <label class="small"><input type="checkbox" id="mellieaToggle" onchange="toggleMellieaTheme(this.checked)" style="width:auto"> 💛 Melliea Theme (rose gold &amp; blush)</label><br>
         <label class="small"><input type="checkbox" id="autoThemeToggle" onchange="setAutoTheme(this.checked)" style="width:auto"> Auto dark/light from system</label><br>
         <label class="small"><input type="checkbox" id="reduceMotionToggle" onchange="setReduceMotion(this.checked)" style="width:auto"> Reduce animations</label><br><br>
         <button class="btn" onclick="toggleTheme()">Toggle light / dark</button>
+        <br><br>
+        <div class="appearance-studio">
+          <h3>Appearance Studio</h3>
+          <div class="preview-stage" id="appearancePreview">
+            <div class="row" style="justify-content:space-between"><b>Live Preview</b><span class="pill">Sample UI</span></div>
+            <div class="preview-kpis"><div class="preview-kpi"><div class="label">Open</div><div class="num">12</div></div><div class="preview-kpi"><div class="label">Due</div><div class="num">3</div></div><div class="preview-kpi"><div class="label">Files</div><div class="num">7</div></div></div>
+            <div class="preview-row"><span>🏗 Clash coordination task</span><span class="pill high">High</span></div>
+            <div class="progress"><span style="width:68%"></span></div>
+            <div class="row"><button class="btn primary">Primary</button><button class="btn">Secondary</button><span class="pill">#BIM</span></div>
+          </div>
+          <label class="small">Appearance preset</label>
+          <div class="preset-grid" id="appearancePresets"></div>
+          <div class="appearance-two">
+            <div><label class="small">Background style</label><select id="bgStyleSelect" onchange="setBackgroundStyle(this.value)"><option value="default">Soft Gradient</option><option value="bim-grid">BIM Grid</option><option value="blueprint">Blueprint Grid</option><option value="minimal">Minimal</option><option value="flat">Flat</option><option value="glow">Glass Glow</option><option value="aurora">Aurora</option></select></div>
+            <div><label class="small">Density</label><select id="densitySelect" onchange="setDensity(this.value)"><option value="comfortable">Comfortable</option><option value="standard">Standard</option><option value="compact">Compact</option><option value="ultra">Ultra Compact</option></select></div>
+            <div><label class="small">Animation level</label><select id="animLevelSelect" onchange="setAnimationLevel(this.value)"><option value="full">Full Motion</option><option value="balanced">Balanced</option><option value="subtle">Subtle</option><option value="none">None</option></select></div>
+            <div><label class="small">Task row style</label><select id="rowStyleSelect" onchange="setTaskRowStyle(this.value)"><option value="stripe">Priority Stripe</option><option value="card">Card Row</option><option value="minimal">Minimal Clean</option><option value="table">BIM Table</option></select></div>
+            <div><label class="small">Icon style</label><select id="iconStyleSelect" onchange="setIconStyle(this.value)"><option value="emoji">Emoji / Symbols</option><option value="symbol">Minimal Symbols</option><option value="text">Text Only</option></select></div>
+            <div><label class="small">Header title</label><input id="brandTitleInput" placeholder="Lew's Tracker" onchange="setBranding()"></div>
+            <div><label class="small">Header subtitle</label><input id="brandSubInput" placeholder="BIM Command Center" onchange="setBranding()"></div>
+            <div><label class="small">Logo letter</label><input id="brandLogoInput" maxlength="2" placeholder="L" onchange="setBranding()"></div>
+          </div>
+          <label class="small">Advanced custom CSS</label>
+          <textarea id="customCssBox" class="custom-css-box" placeholder="Optional CSS overrides..." oninput="setCustomCss(this.value)"></textarea>
+          <div class="panel-actions">
+            <button class="btn" onclick="resetAppearanceOnly()">Reset Appearance</button>
+            <button class="btn" onclick="exportTheme()">Export Theme</button>
+            <button class="btn" onclick="themeImportFile.click()">Import Theme</button>
+            <input id="themeImportFile" type="file" accept=".json" hidden onchange="importTheme(event)">
+          </div>
+        </div>
       </div>
       <div class="card">
         <h3>Workflow &amp; Backup</h3>
@@ -1036,6 +1242,9 @@ body.light .top{background:transparent}
   </div><br>
   <input id="taskTags" placeholder="Tags: BIM, Drawing, RFI"><br><br>
   <textarea id="taskRefs" placeholder="Details / references / checklist..."></textarea><br><br>
+  <label class="small">Reference files / attachments</label>
+  <input id="taskFiles" type="file" multiple style="margin-top:6px">
+  <div id="taskExistingFiles" style="margin-top:8px"></div><br>
   <button class="btn primary" onclick="saveTask()">Save</button>
 </div></div>
 
@@ -1112,6 +1321,53 @@ body.light .top{background:transparent}
 let STORE=null; // set per-user after login
 const _DATA_PREFIX='lews_tracker_v82_data_';
 function dataKey(u){return _DATA_PREFIX+u}
+
+// ── Google Sheets Sync ────────────────────────────────────────────────────────
+const GS_API_KEY='AIzaSyDi-wMEaYCy8sgkUwql9MsSNSTrWjiJ7_g';
+const GS_SHEET_ID='1FjlvWO6Vgt9qBstScWqNdv7wVpvW52ec46VnPFjtMxY';
+const GS_BASE=`https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values`;
+
+function isCloudUser(u){return u&&u.toLowerCase()!=='guest';}
+
+// Read data for a user from Google Sheets (each user = one row: username | jsondata)
+async function gsLoad(username){
+  try{
+    const res=await fetch(`${GS_BASE}/Sheet1?key=${GS_API_KEY}`);
+    if(!res.ok)throw new Error('Sheets read failed');
+    const json=await res.json();
+    const rows=json.values||[];
+    const row=rows.find(r=>r[0]&&r[0].toLowerCase()===username.toLowerCase());
+    if(row&&row[1]){return JSON.parse(row[1]);}
+    return null;
+  }catch(e){console.warn('gsLoad error:',e);return null;}
+}
+
+// Write data for a user to Google Sheets
+async function gsSave(username,payload){
+  try{
+    // First find the row index
+    const res=await fetch(`${GS_BASE}/Sheet1?key=${GS_API_KEY}`);
+    if(!res.ok)throw new Error('Sheets read failed');
+    const json=await res.json();
+    const rows=json.values||[];
+    const rowIdx=rows.findIndex(r=>r[0]&&r[0].toLowerCase()===username.toLowerCase());
+    const range=rowIdx>=0?`Sheet1!A${rowIdx+1}:B${rowIdx+1}`:`Sheet1!A${rows.length+1}:B${rows.length+1}`;
+    const body={values:[[username,JSON.stringify(payload)]]};
+    await fetch(`${GS_BASE}/${encodeURIComponent(range)}?valueInputOption=RAW&key=${GS_API_KEY}`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+  }catch(e){console.warn('gsSave error:',e);toastMsg('⚠️ Cloud save failed — data saved locally as backup');}
+}
+
+// Debounced cloud save — waits 2s after last change before writing
+let _gsSaveTimer=null;
+function gsSaveDebounced(){
+  if(!isCloudUser(currentUser))return;
+  if(_gsSaveTimer)clearTimeout(_gsSaveTimer);
+  _gsSaveTimer=setTimeout(()=>gsSave(currentUser,data),2000);
+}
 const TZ=[['Doha, Qatar','Asia/Qatar'],['Manila, Philippines','Asia/Manila'],['Dubai, UAE','Asia/Dubai'],['Riyadh, Saudi Arabia','Asia/Riyadh'],['UTC / GMT','UTC'],['London, UK','Europe/London'],['Paris, France','Europe/Paris'],['New York, USA','America/New_York'],['Los Angeles, USA','America/Los_Angeles'],['Toronto, Canada','America/Toronto'],['Tokyo, Japan','Asia/Tokyo'],['Singapore','Asia/Singapore'],['Hong Kong','Asia/Hong_Kong'],['Sydney, Australia','Australia/Sydney'],['Auckland, NZ','Pacific/Auckland']];
 const CURRENCIES={USD:'$',EUR:'€',GBP:'£',AUD:'A$',QAR:'QR ',AED:'AED ',PHP:'₱',SGD:'S$',JPY:'¥',CAD:'C$'};
 const defaultTemplates={'Model Review':['Confirm latest model version','Check coordinates / levels / grids','Review linked models','Run clash / QA check','Export issue screenshots','Update comments and status'],'Shop Drawing Check':['Confirm latest drawing revision','Check title block and references','Review dimensions and levels','Compare against model / specs','Mark comments','Prepare response or submission'],'Clash Coordination':['Load latest discipline models','Run clash test','Group issues by zone/system','Assign owner','Export screenshots/report','Follow up blockers'],'RFI Preparation':['Define question clearly','Attach screenshots/drawings','Reference grid/level/location','Propose recommendation','Assign recipient','Track response']};
@@ -1123,13 +1379,29 @@ const icons={dashboard:'⌂',focus:'◎',tasks:'□',templates:'▧',insights:'�
 const MOBILE_MAIN=['dashboard','tasks','focus','calendar'];
 
 function load(){try{let x=Object.assign(structuredClone(DEF),JSON.parse(localStorage.getItem(STORE)||'{}'));x.templates=x.templates||structuredClone(defaultTemplates);x.settings=Object.assign(structuredClone(DEF.settings),x.settings||{});x.trash=x.trash||[];return x}catch{return structuredClone(DEF)}}
-function save(){localStorage.setItem(STORE,JSON.stringify(data));stats();storage()}
+function save(){
+  // Always save to localStorage as backup
+  if(STORE)localStorage.setItem(STORE,JSON.stringify(data));
+  stats();storage();
+  // Cloud save for all non-guest users
+  if(isCloudUser(currentUser))gsSaveDebounced();
+}
 function dateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function today(){return dateKey(new Date())}
 function esc(s){return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
 function uid(){return Date.now()+Math.floor(Math.random()*1e6)}
 function moneyFmt(n,curr){const sym=CURRENCIES[curr]||curr+' ';return sym+Number(n||0).toLocaleString(undefined,{maximumFractionDigits:0})}
 function ensure(t){t.files=t.files||[];t.tags=t.tags||[];t.refs=t.refs||'';t.status=t.status||'todo';if(t.status==='new')t.status='todo';if(t.status==='inprogress')t.status='progress';t.priority=t.priority||'medium';t.checklist=t.checklist||[];t.source=t.source||'task';t.createdAt=t.createdAt||Date.now();t.timeLog=t.timeLog||[];t.recurring=t.recurring||'none';return t}
+// ── Task reference files ─────────────────────────────────────────────────────
+function bytesFmt(bytes){bytes=Number(bytes||0);if(bytes<1024)return bytes+' B';if(bytes<1024*1024)return(bytes/1024).toFixed(1)+' KB';return(bytes/1024/1024).toFixed(1)+' MB';}
+function taskFileIcon(type,name){const n=(name||'').toLowerCase(),t=(type||'').toLowerCase();if(t.includes('image')||/\.(png|jpg|jpeg|gif|webp|svg)$/.test(n))return'🖼';if(t.includes('pdf')||n.endsWith('.pdf'))return'📄';if(/\.(doc|docx)$/.test(n))return'📝';if(/\.(xls|xlsx|csv)$/.test(n))return'📊';if(/\.(dwg|dxf|rvt|ifc|nwc|nwd|skp)$/.test(n))return'🏗';if(/\.(zip|rar|7z)$/.test(n))return'🗜';return'📎';}
+function readFilesAsDataUrls(fileList){const files=Array.from(fileList||[]);return Promise.all(files.map(f=>new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve({id:uid(),name:f.name,type:f.type||'application/octet-stream',size:f.size||0,added:new Date().toISOString(),data:r.result});r.onerror=()=>reject(r.error||new Error('Could not read file'));r.readAsDataURL(f);})));}
+function renderTaskFiles(t){t=ensure(t);const files=t.files||[];return`<div class="task-files" style="display:grid;gap:6px"><div class="row" style="justify-content:space-between;align-items:center"><b class="small">Reference files (${files.length})</b><label class="btn" style="margin:0">+ Attach<input type="file" multiple hidden onchange="addFilesToTask(${t.id},this.files);this.value=''" /></label></div>`+(files.length?files.map(f=>`<div class="item" style="padding:6px 8px;border-left-width:1px"><div style="min-width:0"><span style="margin-right:6px">${taskFileIcon(f.type,f.name)}</span><b class="small" title="${esc(f.name)}">${esc(f.name)}</b><div class="small">${bytesFmt(f.size)} · ${f.added?new Date(f.added).toLocaleDateString():''}</div></div><div class="row" style="gap:4px"><button class="icon" title="Download" onclick="downloadTaskFile(${t.id},${f.id})">⬇</button><button class="icon danger" title="Remove" onclick="deleteTaskFile(${t.id},${f.id})">×</button></div></div>`).join(''):`<div class="empty" style="padding:8px;font-size:.72rem">No reference files attached.</div>`)+`</div>`;}
+function renderTaskModalFiles(t){const el=document.getElementById('taskExistingFiles');if(!el)return;if(!t){el.innerHTML='<div class="empty" style="padding:8px;font-size:.72rem">Attach files after choosing them below.</div>';return;}el.innerHTML=renderTaskFiles(t);}
+async function addFilesToTask(tid,fileList){const t=ensure(data.tasks.find(x=>x.id===tid));if(!t)return;const incoming=await readFilesAsDataUrls(fileList);if(!incoming.length)return;t.files=t.files||[];t.files.push(...incoming);save();renderTasks();toastMsg(incoming.length+' file(s) attached');}
+function downloadTaskFile(tid,fid){const t=ensure(data.tasks.find(x=>x.id===tid));const f=(t.files||[]).find(x=>x.id===fid);if(!f||!f.data){toastMsg('File not found');return;}const a=document.createElement('a');a.href=f.data;a.download=f.name||'task-file';a.click();}
+function deleteTaskFile(tid,fid){const t=ensure(data.tasks.find(x=>x.id===tid));const f=(t.files||[]).find(x=>x.id===fid);t.files=(t.files||[]).filter(x=>x.id!==fid);save();renderTasks();toastUndo('File removed',()=>{t.files=t.files||[];if(f)t.files.push(f);save();renderTasks();});}
+
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function toastMsg(m,dur=2400){let d=document.createElement('div');d.innerHTML='<span>'+m+'</span>';toast.prepend(d);setTimeout(()=>{d.style.animation='toastOut .25s ease forwards';setTimeout(()=>d.remove(),260)},dur)}
@@ -1178,7 +1450,7 @@ function renderSearchResults(q){
   if(!el)return;
   if(!q.trim()){el.innerHTML='<div class="empty">Type to search tasks, notes, templates…</div>';return;}
   const lq=q.toLowerCase();
-  const tasks=data.tasks.map(ensure).filter(t=>(t.title+' '+t.refs+' '+t.tags.join(' ')).toLowerCase().includes(lq)).slice(0,8);
+  const tasks=data.tasks.map(ensure).filter(t=>(t.title+' '+t.refs+' '+t.tags.join(' ')+' '+(t.files||[]).map(f=>f.name).join(' ')).toLowerCase().includes(lq)).slice(0,8);
   const notes=data.notes.filter(n=>(n.title+' '+n.body).toLowerCase().includes(lq)).slice(0,4);
   const tmpl=Object.keys(data.templates).filter(k=>k.toLowerCase().includes(lq)).slice(0,4);
   let html='';
@@ -1198,8 +1470,8 @@ function createTask(o){data.tasks.unshift(Object.assign({id:uid(),title:'Untitle
 function quickAdd(){let raw=quickInput.value.trim();if(!raw)return;let first=(raw.split(/\s+/)[0]||'task').toLowerCase(),body=raw.replace(/^\w+\s*/,'').trim(),tags=[...raw.matchAll(/#(\w+)/g)].map(x=>x[1]),pr=/\bhigh\b/i.test(raw)?'high':/\blow\b/i.test(raw)?'low':'medium';if(first==='template'){let name=Object.keys(data.templates).find(k=>body.toLowerCase().includes(k.toLowerCase().split(' ')[0])||body.toLowerCase().includes(k.toLowerCase()));let list=data.templates[name||Object.keys(data.templates)[0]];createTask({title:name||Object.keys(data.templates)[0],priority:pr,due:smartDate(raw),tags:[...new Set([...tags,'BIM'])],checklist:list.map(x=>({id:uid(),text:x,done:false})),refs:list.map(x=>'□ '+x).join('\n')});toastMsg('Template task added')}else if(first==='note'){data.notes.unshift({id:uid(),title:body.split(' ').slice(0,5).join(' ')||'Quick Note',body,taskId:null,created:new Date().toLocaleDateString(),updated:Date.now()});toastMsg('Note added')}else if(first==='event'){addCalendarTask(cleanText(body)||body,smartDate(raw))}else{if(first!=='task')body=raw;createTask({title:cleanText(body)||body,priority:pr,due:smartDate(raw),tags});toastMsg('Task added')}quickInput.value='';save();renderAll()}
 quickInput?.addEventListener('keydown',e=>{if(e.key==='Enter')quickAdd()});
 
-function openTask(id){let t=id?ensure(data.tasks.find(x=>x.id===id)):null;taskModalTitle.textContent=t?'Edit Task':'New Task';taskId.value=t?.id||'';taskTitle.value=t?.title||'';taskPriority.value=t?.priority||'medium';taskStatus.value=t?.status||'todo';taskDue.value=t?.due||today();taskTags.value=(t?.tags||[]).join(', ');taskRefs.value=t?.refs||'';taskRecurring.value=t?.recurring||'none';openModal('taskModal')}
-function saveTask(){let title=taskTitle.value.trim();if(!title)return;let obj={title,priority:taskPriority.value,status:taskStatus.value,due:taskDue.value,tags:taskTags.value.split(',').map(x=>x.trim()).filter(Boolean),refs:taskRefs.value,recurring:taskRecurring.value,created:today()};if(taskId.value){Object.assign(ensure(data.tasks.find(x=>x.id==taskId.value)),obj)}else createTask(obj);closeModal('taskModal');save();renderAll();toastMsg('Saved')}
+function openTask(id){let t=id?ensure(data.tasks.find(x=>x.id===id)):null;taskModalTitle.textContent=t?'Edit Task':'New Task';taskId.value=t?.id||'';taskTitle.value=t?.title||'';taskPriority.value=t?.priority||'medium';taskStatus.value=t?.status||'todo';taskDue.value=t?.due||today();taskTags.value=(t?.tags||[]).join(', ');taskRefs.value=t?.refs||'';taskRecurring.value=t?.recurring||'none';if(taskFiles)taskFiles.value='';renderTaskModalFiles(t);openModal('taskModal')}
+async function saveTask(){let title=taskTitle.value.trim();if(!title)return;let obj={title,priority:taskPriority.value,status:taskStatus.value,due:taskDue.value,tags:taskTags.value.split(',').map(x=>x.trim()).filter(Boolean),refs:taskRefs.value,recurring:taskRecurring.value,created:today()};let t;if(taskId.value){t=ensure(data.tasks.find(x=>x.id==taskId.value));Object.assign(t,obj)}else{t=createTask(obj)}try{const picked=document.getElementById('taskFiles');const incoming=await readFilesAsDataUrls(picked?picked.files:[]);if(incoming.length){t.files=t.files||[];t.files.push(...incoming);}}catch(e){toastMsg('File attach error: '+(e.message||e));}closeModal('taskModal');save();renderAll();toastMsg('Saved')}
 function toggleOpen(id){openTaskId=openTaskId===id?null:id;renderTasks()}
 function delTask(id){const t=data.tasks.find(x=>x.id===id);if(!t)return;data.trash=data.trash||[];data.trash.unshift({...ensure(t),deletedAt:Date.now()});data.tasks=data.tasks.filter(x=>x.id!==id);data.notes.forEach(n=>{if(n.taskId===id)n.taskId=null});save();renderAll();toastUndo('Task deleted',()=>{const tr=data.trash.find(x=>x.id===id);if(tr){data.tasks.unshift(tr);data.trash=data.trash.filter(x=>x.id!==id);save();renderAll();}})}
 function toggleDone(id,evt){let t=ensure(data.tasks.find(x=>x.id===id));const wasDone=t.status==='done';t.status=wasDone?'todo':'done';if(!wasDone&&t.recurring&&t.recurring!=='none'){spawnNextRecurring(t);}save();renderAll();if(!wasDone&&evt){confettiBurst(evt);}}
@@ -1215,10 +1487,10 @@ function fmtSecs(s){if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m';r
 function subProgress(t){if(!t.checklist||!t.checklist.length)return'';const done=t.checklist.filter(c=>c.done).length,total=t.checklist.length,pct=Math.round(done/total*100);return`<span class="sub-prog"><span class="sub-prog-bar-wrap"><span class="sub-prog-bar" style="width:${pct}%"></span></span><span style="font-size:.58rem;color:var(--muted)">${done}/${total}</span></span>`}
 
 // ── Task rendering ────────────────────────────────────────────────────────────
-function taskRow(t,i){t=ensure(t);const open=openTaskId===t.id,checks=t.checklist||[],secs=totalSecs(t),isLogging=activeTimerTask===t.id;return`<div class="item todo pri-${t.priority} ${t.status==='done'?'done':''} ${open?'open':''}"><div class="task-main" onclick="toggleOpen(${t.id})"><span class="task-num">${i+1}</span><span class="todo-text">${esc(t.title)}</span>${indicators(t)}${subProgress(t)}${secs>0?`<span class="timelog-badge">⏱${fmtSecs(secs)}</span>`:''}${t.recurring&&t.recurring!=='none'?'<span class="pill recurring">↺</span>':''}</div><div class="row" style="gap:4px"><button class="icon ${isLogging?'logging':''}" onclick="event.stopPropagation();toggleTimeLog(${t.id})" title="Log time">⏱</button><button class="icon" onclick="event.stopPropagation();openTask(${t.id})">✎</button><button class="icon" onclick="event.stopPropagation();toggleDone(${t.id},event)">✓</button><button class="icon danger" onclick="event.stopPropagation();delTask(${t.id})">×</button></div><div class="task-open" onclick="event.stopPropagation()"><div class="meta row">${[`<span class="pill ${t.priority}">${t.priority}</span>`,`<span class="pill">${statusName(t.status)}</span>`,t.due?`<span class="pill">${t.due}</span>`:'',t.recurring&&t.recurring!=='none'?`<span class="pill recurring">↺ ${t.recurring}</span>`:'',`<span class="pill">added ${new Date(t.createdAt).toLocaleString()}</span>`,...t.tags.map(x=>`<span class="pill">#${esc(x)}</span>`)].join('')}</div>${checks.length?`<div class="list">${checks.map(c=>`<label class="small"><input type="checkbox" ${c.done?'checked':''} onchange="toggleCheck(${t.id},${c.id})" style="width:auto"> ${esc(c.text)}</label>`).join('')}</div>`:''}<textarea placeholder="Details / references…" oninput="ensure(data.tasks.find(x=>x.id===${t.id})).refs=this.value;save()">${esc(t.refs)}</textarea></div></div>`}
+function taskRow(t,i){t=ensure(t);const open=openTaskId===t.id,checks=t.checklist||[],secs=totalSecs(t),isLogging=activeTimerTask===t.id;return`<div class="item todo pri-${t.priority} ${t.status==='done'?'done':''} ${open?'open':''}" data-tid="${t.id}"><div class="task-main" onclick="toggleOpen(${t.id})"><span class="task-num">${i+1}</span><span class="todo-text">${esc(t.title)}</span>${indicators(t)}${subProgress(t)}${secs>0?`<span class="timelog-badge">⏱${fmtSecs(secs)}</span>`:''}${t.recurring&&t.recurring!=='none'?'<span class="pill recurring">↺</span>':''}${(t.files&&t.files.length)?`<span class="pill">📎 ${t.files.length}</span>`:''}</div><div class="row" style="gap:4px"><button class="icon ${isLogging?'logging':''}" onclick="event.stopPropagation();toggleTimeLog(${t.id})" title="Log time">⏱</button><button class="icon" onclick="event.stopPropagation();openTask(${t.id})">✎</button><button class="icon" onclick="event.stopPropagation();toggleDone(${t.id},event)">✓</button><button class="icon danger" onclick="event.stopPropagation();delTask(${t.id})">×</button></div><div class="task-open" onclick="event.stopPropagation()"><div class="meta row">${[`<span class="pill ${t.priority}">${t.priority}</span>`,`<span class="pill">${statusName(t.status)}</span>`,t.due?`<span class="pill">${t.due}</span>`:'',t.recurring&&t.recurring!=='none'?`<span class="pill recurring">↺ ${t.recurring}</span>`:'',`<span class="pill">added ${new Date(t.createdAt).toLocaleString()}</span>`,...t.tags.map(x=>`<span class="pill">#${esc(x)}</span>`)].join('')}</div>${checks.length?`<div class="list">${checks.map(c=>`<label class="small"><input type="checkbox" ${c.done?'checked':''} onchange="toggleCheck(${t.id},${c.id})" style="width:auto"> ${esc(c.text)}</label>`).join('')}</div>`:''}${renderTaskFiles(t)}<textarea placeholder="Details / references…" oninput="ensure(data.tasks.find(x=>x.id===${t.id})).refs=this.value;save()">${esc(t.refs)}</textarea></div></div>`}
 function indicators(t){const td=t.due===today(),od=t.due&&t.due<today()&&t.status!=='done';return`${td?'<span class="pill today">Today</span>':''}${od?'<span class="pill overdue">Overdue</span>':''}`}
 function statusName(s){return{todo:'To Do',progress:'In Progress',waiting:'Waiting',done:'Done'}[s]||s}
-function filtered(){let q=(taskSearch?.value||'').toLowerCase(),f=taskFilter?.value||'all',sort=taskSort?.value||data.settings.sort||'dueAsc';data.settings.sort=sort;let arr=data.tasks.map(ensure).filter(t=>(!q||(t.title+t.priority+t.status+t.refs+t.tags.join(' ')).toLowerCase().includes(q))&&(f==='all'||t.status===f));let active=arr.filter(t=>t.status!=='done'),done=arr.filter(t=>t.status==='done');let sorter=(a,b)=>{if(sort==='createdDesc')return(b.createdAt||0)-(a.createdAt||0);if(sort==='createdAsc')return(a.createdAt||0)-(b.createdAt||0);if(sort==='dueDesc')return(b.due||'').localeCompare(a.due||'');return(a.due||'9999').localeCompare(b.due||'9999')};active.sort(sorter);done.sort(sorter);return[...active,...done]}
+function filtered(){let q=(taskSearch?.value||'').toLowerCase(),f=taskFilter?.value||'all',sort=taskSort?.value||data.settings.sort||'dueAsc';data.settings.sort=sort;let arr=data.tasks.map(ensure).filter(t=>(!q||(t.title+t.priority+t.status+t.refs+t.tags.join(' ')).toLowerCase().includes(q))&&((f==='all'||t.status===f)||(f==='hasFiles'&&(t.files||[]).length>0)||(f==='noFiles'&&!(t.files||[]).length)));let active=arr.filter(t=>t.status!=='done'),done=arr.filter(t=>t.status==='done');let sorter=(a,b)=>{if(sort==='createdDesc')return(b.createdAt||0)-(a.createdAt||0);if(sort==='createdAsc')return(a.createdAt||0)-(b.createdAt||0);if(sort==='dueDesc')return(b.due||'').localeCompare(a.due||'');return(a.due||'9999').localeCompare(b.due||'9999')};active.sort(sorter);done.sort(sorter);return[...active,...done]}
 function renderFilters(){if(taskSort)taskSort.value=data.settings.sort||'dueAsc'}
 function renderTasks(){if(!taskArea)return;renderFilters();let list=filtered();save();if(data.settings.mode==='board'){modeBtn.textContent='List';renderBoard(list)}else{modeBtn.textContent='Board';taskArea.innerHTML='<div class="list">'+(list.map((t,i)=>taskRow(t,i)).join('')||'<div class="empty">No tasks yet. Use Quick Add above.</div>')+'</div>'}}
 function renderBoard(list){const cols=['todo','progress','waiting','done'];taskArea.innerHTML='<div class="board">'+cols.map(c=>`<div class="board-col" data-status="${c}" ondragover="boardOver(event)" ondragleave="boardLeave(event)" ondrop="boardDrop(event,'${c}')"><h3>${statusName(c)} <span class="pill">${list.filter(t=>t.status===c).length}</span></h3>${list.filter(t=>t.status===c).map(t=>`<div class="board-card" draggable="true" ondragstart="boardDrag(event,${t.id})"><b>${esc(t.title)}</b><div class="small">${t.due||'No date'} · ${t.priority}</div></div>`).join('')||'<div class="empty">Drop here</div>'}</div>`).join('')+'</div>'}
@@ -1379,7 +1651,7 @@ function setDefaultView(v){data.settings.defaultView=v;save()}
 function exportData(){const exp=Object.assign({},data,{_owner:currentUser,_version:'v8.2',_exported:new Date().toISOString()});const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(exp,null,2)],{type:'application/json'}));a.download='lews-tracker-'+(currentUser||'backup')+'-'+today()+'.json';a.click();URL.revokeObjectURL(a.href);toastMsg('Downloaded backup for '+currentUser)}
 function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{const raw=JSON.parse(r.result);const owner=raw._owner||null;const msg=owner&&owner!==currentUser?'Load setup from "'+owner+'"? Your current data will be replaced.':'Replace your current data with this backup?';if(!confirm(msg))return;const clean=Object.assign(structuredClone(DEF),raw);delete clean._owner;delete clean._version;delete clean._exported;data=clean;save();applySettings();renderAll();toastMsg(owner&&owner!==currentUser?'Loaded setup from '+owner:'Data restored');if(owner&&owner!==currentUser)toastMsg('Tip: templates and tasks from '+owner+' are now loaded');}catch{alert('Invalid backup file')}};r.readAsText(f)}
 function resetAll(){if(confirm('Delete all Lew\'s Tracker v8.0 data?')){data=structuredClone(DEF);save();applySettings();renderAll();toastMsg('Reset complete')}}
-function exportTaskReport(){let rows=['Lew\'s Tracker Task Report','Generated: '+new Date().toLocaleString(),''];data.tasks.map(ensure).forEach((t,i)=>{const secs=totalSecs(t);rows.push(`${i+1}. ${t.title}`);rows.push(`   Status: ${statusName(t.status)} | Priority: ${t.priority} | Due: ${t.due||'-'} | Recurring: ${t.recurring}`);if(secs>0)rows.push(`   Time logged: ${fmtSecs(secs)}`);rows.push(`   Tags: ${(t.tags||[]).join(', ')||'-'}`);if(t.refs)rows.push('   Notes: '+t.refs.replace(/\n/g,' / '));rows.push('')});let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/plain'}));a.download='lews-tracker-tasks-'+today()+'.txt';a.click();URL.revokeObjectURL(a.href)}
+function exportTaskReport(){let rows=['Lew\'s Tracker Task Report','Generated: '+new Date().toLocaleString(),''];data.tasks.map(ensure).forEach((t,i)=>{const secs=totalSecs(t);rows.push(`${i+1}. ${t.title}`);rows.push(`   Status: ${statusName(t.status)} | Priority: ${t.priority} | Due: ${t.due||'-'} | Recurring: ${t.recurring}`);if(secs>0)rows.push(`   Time logged: ${fmtSecs(secs)}`);rows.push(`   Tags: ${(t.tags||[]).join(', ')||'-'}`);if(t.refs)rows.push('   Notes: '+t.refs.replace(/\n/g,' / '));if(t.files&&t.files.length)rows.push('   Files: '+t.files.map(f=>f.name).join(', '));rows.push('')});let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/plain'}));a.download='lews-tracker-tasks-'+today()+'.txt';a.click();URL.revokeObjectURL(a.href)}
 
 
 // ── Excel Finance Export (ExcelJS lazy-loaded, xlsx skill standards) ──────
@@ -1548,7 +1820,7 @@ td{padding:5px 9px;border:1px solid #DDD;vertical-align:top}
     const tags = (t.tags || []).map(g => '#' + esc(g)).join(', ');
     const rec = t.recurring && t.recurring !== 'none' ? '↺ ' + t.recurring : '—';
     h += `<tr class="${t.status === 'done' ? 'done' : ''}" style="background:${bg}">
-<td><b>${esc(t.title)}</b>${t.refs ? '<br><small style="color:#666">' + esc(t.refs.substring(0,100)) + '</small>' : ''}</td>
+<td><b>${esc(t.title)}</b>${t.refs ? '<br><small style="color:#666">' + esc(t.refs.substring(0,100)) + '</small>' : ''}${t.files&&t.files.length ? '<br><small style="color:#666">Files: ' + t.files.map(f=>esc(f.name)).join(', ') + '</small>' : ''}</td>
 <td style="color:${priT[t.priority]||'#333'};font-weight:bold">${t.priority}</td>
 <td>${statusName(t.status)}</td><td>${t.due || '—'}</td>
 <td style="color:${secs > 0 ? '#006400' : '#888'}">${secs > 0 ? fmtSecs(secs) : '—'}</td>
@@ -1578,9 +1850,39 @@ td{padding:5px 9px;border:1px solid #DDD;vertical-align:top}
   toastMsg('Tasks exported to Word ✓');
 }
 
+
+// ── Appearance Studio v8.7 ───────────────────────────────────────────────────
+const APPEARANCE_PRESETS={
+  'BIM Dark':{theme:'dark',accent:'#d8b76d',accent2:'#ff9655',bgStyle:'bim-grid',density:'standard',animLevel:'balanced',rowStyle:'stripe',glass:true,compact:false,radius:22,iconStyle:'emoji',font:'Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif'},
+  'Site Light':{theme:'light',accent:'#a07830',accent2:'#cc6622',bgStyle:'minimal',density:'comfortable',animLevel:'subtle',rowStyle:'card',glass:false,compact:false,radius:18,iconStyle:'text'},
+  'Presentation Gold':{theme:'dark',accent:'#d8b76d',accent2:'#ffeab0',bgStyle:'glow',density:'comfortable',animLevel:'full',rowStyle:'card',glass:true,compact:false,radius:28,iconStyle:'emoji'},
+  'Eye Comfort':{theme:'pastel',pastel:true,accent:'#a08050',accent2:'#c09060',bgStyle:'minimal',density:'standard',animLevel:'subtle',rowStyle:'minimal',glass:false,compact:false,radius:20,iconStyle:'symbol'},
+  'Compact Dashboard':{theme:'dark',accent:'#8db9ff',accent2:'#4a9eff',bgStyle:'flat',density:'compact',animLevel:'balanced',rowStyle:'table',glass:false,compact:true,radius:14,iconStyle:'symbol'},
+  'OLED Black':{theme:'dark',accent:'#d8b76d',accent2:'#97dc8d',bgStyle:'flat',density:'ultra',animLevel:'none',rowStyle:'minimal',glass:false,compact:true,radius:12,iconStyle:'text'},
+  'Blueprint Blue':{theme:'dark',accent:'#4a9eff',accent2:'#00c9ff',bgStyle:'blueprint',density:'standard',animLevel:'balanced',rowStyle:'table',glass:true,radius:18,iconStyle:'symbol'},
+  'Doha Sand':{theme:'pastel',pastel:true,accent:'#b08a55',accent2:'#d8a45f',bgStyle:'minimal',density:'comfortable',animLevel:'subtle',rowStyle:'card',glass:false,radius:24,iconStyle:'emoji'},
+  'MEP Cyan':{theme:'dark',accent:'#00c9c9',accent2:'#8db9ff',bgStyle:'bim-grid',density:'compact',animLevel:'balanced',rowStyle:'stripe',glass:true,radius:18,iconStyle:'symbol'},
+  'Coordination Orange':{theme:'dark',accent:'#ff9655',accent2:'#ff7474',bgStyle:'glow',density:'standard',animLevel:'full',rowStyle:'stripe',glass:true,radius:20,iconStyle:'emoji'}
+};
+function clearAppearanceClasses(){document.body.classList.remove('bg-minimal','bg-flat','bg-blueprint','bg-bim-grid','bg-glow','bg-aurora','density-comfort','density-standard','density-compact','density-ultra','anim-none','anim-subtle','row-table','row-card','row-minimal','icons-text','icons-symbol');}
+function setBackgroundStyle(v){data.settings.bgStyle=v||'default';applyAppearanceClasses();save();}
+function setDensity(v){data.settings.density=v||'standard';applyAppearanceClasses();save();}
+function setAnimationLevel(v){data.settings.animLevel=v||'balanced';applyAppearanceClasses();save();}
+function setTaskRowStyle(v){data.settings.rowStyle=v||'stripe';applyAppearanceClasses();save();renderTasks();}
+function setIconStyle(v){data.settings.iconStyle=v||'emoji';applyAppearanceClasses();save();}
+function setBranding(){data.settings.brandTitle=(brandTitleInput.value||"Lew's Tracker").trim();data.settings.brandSub=(brandSubInput.value||'BIM Command Center').trim();data.settings.brandLogo=(brandLogoInput.value||'L').trim().slice(0,2);applyBranding();save();}
+function applyBranding(){const s=data.settings||{};document.querySelectorAll('.brand h1').forEach(x=>x.textContent=s.brandTitle||"Lew's Tracker");document.querySelectorAll('.brand p').forEach(x=>x.textContent=s.brandSub||'v8.7 · BIM Command Center');document.querySelectorAll('.logo,.login-logo').forEach(x=>x.textContent=s.brandLogo||'L');if(brandTitleInput)brandTitleInput.value=s.brandTitle||"Lew's Tracker";if(brandSubInput)brandSubInput.value=s.brandSub||'BIM Command Center';if(brandLogoInput)brandLogoInput.value=s.brandLogo||'L';}
+function setCustomCss(v){data.settings.customCss=v||'';applyCustomCss();save();}
+function applyCustomCss(){let st=document.getElementById('customCssStyle');if(!st){st=document.createElement('style');st.id='customCssStyle';document.head.appendChild(st);}st.textContent=(data.settings&&data.settings.customCss)||'';if(customCssBox)customCssBox.value=(data.settings&&data.settings.customCss)||'';}
+function applyAppearancePreset(name){const p=APPEARANCE_PRESETS[name];if(!p)return;data.settings=Object.assign(data.settings,p);if(p.theme==='pastel'){data.settings.pastel=true}else if(p.theme==='light'){data.settings.pastel=false}else{data.settings.pastel=false}applySettings();save();renderAll();toastMsg('Preset applied: '+name);}
+function renderAppearancePresets(){const el=document.getElementById('appearancePresets');if(!el)return;el.innerHTML=Object.keys(APPEARANCE_PRESETS).map(n=>`<button class="preset-card" onclick="applyAppearancePreset('${n.replace(/'/g,"\\'")}')"><b>${n}</b><span>${APPEARANCE_PRESETS[n].bgStyle||'default'} · ${APPEARANCE_PRESETS[n].density||'standard'}</span></button>`).join('');}
+function applyAppearanceClasses(){const s=data.settings||{};clearAppearanceClasses();if(s.bgStyle&&s.bgStyle!=='default')document.body.classList.add('bg-'+s.bgStyle);document.body.classList.add('density-'+(s.density||'standard'));if(s.animLevel==='none')document.body.classList.add('anim-none');if(s.animLevel==='subtle')document.body.classList.add('anim-subtle');if(s.rowStyle==='table')document.body.classList.add('row-table');if(s.rowStyle==='card')document.body.classList.add('row-card');if(s.rowStyle==='minimal')document.body.classList.add('row-minimal');if(s.iconStyle==='text')document.body.classList.add('icons-text');if(s.iconStyle==='symbol')document.body.classList.add('icons-symbol');if(bgStyleSelect)bgStyleSelect.value=s.bgStyle||'default';if(densitySelect)densitySelect.value=s.density||'standard';if(animLevelSelect)animLevelSelect.value=s.animLevel||'balanced';if(rowStyleSelect)rowStyleSelect.value=s.rowStyle||'stripe';if(iconStyleSelect)iconStyleSelect.value=s.iconStyle||'emoji';}
+function resetAppearanceOnly(){if(!confirm('Reset appearance only? Tasks, notes, budgets, and files will stay.'))return;const keep={theme:'dark',scale:1,tabScale:1,financeScale:1,compact:false,glass:false,reduceMotion:false,autoTheme:false,accent:'#d8b76d',accent2:'#ff9655',radius:22,font:DEF.settings.font,bgStyle:'default',density:'standard',animLevel:'balanced',rowStyle:'stripe',iconStyle:'emoji',brandTitle:"Lew's Tracker",brandSub:'BIM Command Center',brandLogo:'L',customCss:''};Object.assign(data.settings,keep);applySettings();save();toastMsg('Appearance reset');}
+function exportTheme(){const keys=['theme','pastel','scale','tabScale','financeScale','compact','glass','reduceMotion','autoTheme','accent','accent2','radius','font','bgStyle','density','animLevel','rowStyle','iconStyle','brandTitle','brandSub','brandLogo','customCss'];const theme={_type:'lews-tracker-theme',_version:'v8.7'};keys.forEach(k=>theme[k]=data.settings[k]);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(theme,null,2)],{type:'application/json'}));a.download='lews-tracker-theme-'+today()+'.json';a.click();URL.revokeObjectURL(a.href);toastMsg('Theme exported');}
+function importTheme(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const theme=JSON.parse(r.result);if(theme._type!=='lews-tracker-theme'&&!confirm('This does not look like a theme file. Import anyway?'))return;Object.assign(data.settings,theme);delete data.settings._type;delete data.settings._version;applySettings();save();toastMsg('Theme imported');}catch{alert('Invalid theme JSON')}};r.readAsText(f);e.target.value='';}
 // ── Apply settings on load ────────────────────────────────────────────────────
-function applySettings(){const s=data.settings;if(s.pastel){document.body.classList.add('pastel');document.body.classList.remove('light');}else if(s.theme==='light'){document.body.classList.add('light');document.body.classList.remove('pastel');}else{document.body.classList.remove('light','pastel');}if(s.glass)document.body.classList.add('glass');document.documentElement.style.setProperty('--fs',s.scale||1);document.documentElement.style.setProperty('--tabscale',s.tabScale||1);document.documentElement.style.setProperty('--finScale',s.financeScale||1);document.documentElement.style.setProperty('--accent',s.accent||'#d8b76d');document.documentElement.style.setProperty('--accent2',s.accent2||'#ff9655');document.documentElement.style.setProperty('--r',(s.radius||22)+'px');document.documentElement.style.setProperty('--compact',s.compact?1:0);document.documentElement.style.setProperty('--glass',s.glass?1:0);document.documentElement.style.setProperty('--font',s.font||DEF.settings.font);if(fontRange)fontRange.value=Math.round((s.scale||1)*100);if(fontLabel)fontLabel.textContent=fontRange.value+'%';if(tabScaleRange)tabScaleRange.value=Math.round((s.tabScale||1)*100);if(tabScaleLabel)tabScaleLabel.textContent=tabScaleRange.value+'%';if(financeScaleRange)financeScaleRange.value=Math.round((s.financeScale||1)*100);if(financeScaleLabel)financeScaleLabel.textContent=financeScaleRange.value+'%';if(fontSelect)fontSelect.value=s.font||DEF.settings.font;if(accentSelect)accentSelect.value=s.accent||'#d8b76d';if(accentPicker)accentPicker.value=s.accent||'#d8b76d';if(radiusRange)radiusRange.value=s.radius||22;if(compactToggle)compactToggle.checked=!!s.compact;if(glassToggle)glassToggle.checked=!!s.glass;if(autoThemeToggle)autoThemeToggle.checked=!!s.autoTheme;if(reduceMotionToggle)reduceMotionToggle.checked=!!s.reduceMotion;if(introToggle)introToggle.checked=!!s.introAlways;var pastelT=document.getElementById("pastelToggle");if(pastelT)pastelT.checked=!!s.pastel;if(autoBackupHint)autoBackupHint.checked=!!s.backupHint;if(defaultView)defaultView.value=s.defaultView||'dashboard';if(focusDefault)focusDefault.value=s.focusDefault||45;const ps=document.getElementById('petAutoShow');if(ps)ps.checked=!!s.petAutoShow;const pm=document.getElementById('petModeSelect');if(pm)pm.value=s.petMode||'gamepad';const psr=document.getElementById('petSizeRange');if(psr){psr.value=Math.round((s.petScale||1)*100);const pl=document.getElementById('petSizeLbl');if(pl)pl.textContent=psr.value+'%';}const por=document.getElementById('petOpRange');if(por){por.value=Math.round((s.petOpacity||1)*100);const ol=document.getElementById('petOpLbl');if(ol)ol.textContent=por.value+'%';}const css=document.getElementById('clockStyleSelect');if(css)css.value=s.clockStyle||0;document.documentElement.style.setProperty('--pet-scale',s.petScale||1);document.documentElement.style.setProperty('--pet-opacity',s.petOpacity||1);if(taskSort)taskSort.value=s.sort||'dueAsc';const ul=document.getElementById('currentUserLabel');if(ul&&currentUser)ul.textContent=currentUser;// Auto system theme listener
-  if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{if(data.settings.autoTheme){document.body.classList.toggle('light',!e.matches);data.settings.theme=e.matches?'dark':'light';save();}});}}
+function applySettings(){const s=data.settings;if(s.pastel){document.body.classList.add('pastel');document.body.classList.remove('light');}else if(s.theme==='light'){document.body.classList.add('light');document.body.classList.remove('pastel');}else{document.body.classList.remove('light','pastel');}if(s.glass)document.body.classList.add('glass');document.documentElement.style.setProperty('--fs',s.scale||1);document.documentElement.style.setProperty('--tabscale',s.tabScale||1);document.documentElement.style.setProperty('--finScale',s.financeScale||1);document.documentElement.style.setProperty('--accent',s.accent||'#d8b76d');document.documentElement.style.setProperty('--accent2',s.accent2||'#ff9655');document.documentElement.style.setProperty('--r',(s.radius||22)+'px');document.documentElement.style.setProperty('--compact',s.compact?1:0);document.documentElement.style.setProperty('--glass',s.glass?1:0);document.documentElement.style.setProperty('--font',s.font||DEF.settings.font);if(fontRange)fontRange.value=Math.round((s.scale||1)*100);if(fontLabel)fontLabel.textContent=fontRange.value+'%';if(tabScaleRange)tabScaleRange.value=Math.round((s.tabScale||1)*100);if(tabScaleLabel)tabScaleLabel.textContent=tabScaleRange.value+'%';if(financeScaleRange)financeScaleRange.value=Math.round((s.financeScale||1)*100);if(financeScaleLabel)financeScaleLabel.textContent=financeScaleRange.value+'%';if(fontSelect)fontSelect.value=s.font||DEF.settings.font;if(accentSelect)accentSelect.value=s.accent||'#d8b76d';if(accentPicker)accentPicker.value=s.accent||'#d8b76d';if(radiusRange)radiusRange.value=s.radius||22;if(compactToggle)compactToggle.checked=!!s.compact;if(glassToggle)glassToggle.checked=!!s.glass;if(autoThemeToggle)autoThemeToggle.checked=!!s.autoTheme;if(reduceMotionToggle)reduceMotionToggle.checked=!!s.reduceMotion;if(introToggle)introToggle.checked=!!s.introAlways;var pastelT=document.getElementById("pastelToggle");if(pastelT)pastelT.checked=!!s.pastel;var mellieaT=document.getElementById("mellieaToggle");if(mellieaT)mellieaT.checked=!!s.mellieaTheme;toggleMellieaTheme(!!s.mellieaTheme);if(autoBackupHint)autoBackupHint.checked=!!s.backupHint;if(defaultView)defaultView.value=s.defaultView||'dashboard';if(focusDefault)focusDefault.value=s.focusDefault||45;const ps=document.getElementById('petAutoShow');if(ps)ps.checked=!!s.petAutoShow;const pm=document.getElementById('petModeSelect');if(pm)pm.value=s.petMode||'gamepad';const psr=document.getElementById('petSizeRange');if(psr){psr.value=Math.round((s.petScale||1)*100);const pl=document.getElementById('petSizeLbl');if(pl)pl.textContent=psr.value+'%';}const por=document.getElementById('petOpRange');if(por){por.value=Math.round((s.petOpacity||1)*100);const ol=document.getElementById('petOpLbl');if(ol)ol.textContent=por.value+'%';}const css=document.getElementById('clockStyleSelect');if(css)css.value=s.clockStyle||0;document.documentElement.style.setProperty('--pet-scale',s.petScale||1);document.documentElement.style.setProperty('--pet-opacity',s.petOpacity||1);if(taskSort)taskSort.value=s.sort||'dueAsc';const ul=document.getElementById('currentUserLabel');if(ul&&currentUser)ul.textContent=currentUser;// Auto system theme listener
+  applyAppearanceClasses();applyBranding();applyCustomCss();renderAppearancePresets();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{if(data.settings.autoTheme){document.body.classList.toggle('light',!e.matches);data.settings.theme=e.matches?'dark':'light';save();}});}}
 
 
 // ── StringTune-style scroll animation engine ─────────────────────────────────
@@ -1590,7 +1892,7 @@ function applySettings(){const s=data.settings;if(s.pastel){document.body.classL
   const progressBar = document.getElementById('introProgress');
   const scrollCue = document.querySelector('.scroll-cue');
   const dots = document.querySelectorAll('.intro-dot-btn');
-  const slideIds = ['introSlide0','introSlide1','introSlide2','introSlide3','introSlide4','introSlide5','introSlide6'];
+  const slideIds = ['introSlide0','introSlide1','introSlide2','introSlide3','introSlide4','introSlide5','introSlide6','introSlideEnd'];
   const slides = slideIds.map(id => document.getElementById(id)).filter(Boolean);
   const heroGrid = document.querySelector('.intro-grid');
   const heroText = heroGrid ? heroGrid.querySelector('div:first-child') : null;
@@ -1599,6 +1901,26 @@ function applySettings(){const s=data.settings;if(s.pastel){document.body.classL
   const particlesEl = document.getElementById('introParticles');
 
   if (!introEl) return;
+
+  // ── Block scroll from leaking to body (overscroll-behavior) ──
+  introEl.style.overscrollBehavior = 'contain';
+
+  // Also prevent wheel events from propagating when at scroll boundaries
+  introEl.addEventListener('wheel', e => {
+    const atTop = introEl.scrollTop <= 0 && e.deltaY < 0;
+    const atBottom = introEl.scrollTop + introEl.clientHeight >= introEl.scrollHeight - 2 && e.deltaY > 0;
+    if (atTop || atBottom) e.preventDefault();
+  }, { passive: false });
+
+  // Block touchmove propagation too
+  let _touchStartY = 0;
+  introEl.addEventListener('touchstart', e => { _touchStartY = e.touches[0].clientY; }, { passive: true });
+  introEl.addEventListener('touchmove', e => {
+    const deltaY = _touchStartY - e.touches[0].clientY;
+    const atTop = introEl.scrollTop <= 0 && deltaY < 0;
+    const atBottom = introEl.scrollTop + introEl.clientHeight >= introEl.scrollHeight - 2 && deltaY > 0;
+    if (atTop || atBottom) e.preventDefault();
+  }, { passive: false });
 
   // ── Create floating particles ──
   if (particlesEl) {
@@ -1700,6 +2022,13 @@ function applySettings(){const s=data.settings;if(s.pastel){document.body.classL
   };
 })();
 
+
+// ── Login UX helpers v8.7 ────────────────────────────────────────────────────
+function togglePwd(id,btn){const el=document.getElementById(id);if(!el)return;el.type=el.type==='password'?'text':'password';if(btn)btn.textContent=el.type==='password'?'👁':'🙈';}
+function updatePwdStrength(v){const bar=document.getElementById('pwdStrength');if(!bar)return;bar.className='login-strength';if((v||'').length>=8&&/[A-Z]/.test(v)&&/[0-9]/.test(v))bar.classList.add('good');else if((v||'').length>=4)bar.classList.add('ok');const span=bar.querySelector('span');if(span&&!bar.classList.contains('ok')&&!bar.classList.contains('good'))span.style.width=v?Math.min(45,v.length*10)+'%':'0';}
+function setAuthBusy(btnText){const btn=[...document.querySelectorAll('#loginForm .btn.primary,#registerForm .btn.primary,#recoveryForm .btn.primary')].find(b=>b.offsetParent!==null);if(btn){btn.dataset.oldText=btn.textContent;btn.textContent=btnText||'Working…';btn.disabled=true;}return btn;}
+function clearAuthBusy(btn){if(btn){btn.textContent=btn.dataset.oldText||btn.textContent;btn.disabled=false;}}
+function forceReturnLogin(){clearSession();currentUser=null;data=null;STORE=null;document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));const ls=document.getElementById('loginScreen');if(ls)ls.classList.add('show');showSignIn();}
 // ── Auth system v8.2 ──────────────────────────────────────────────────────────
 const USERS_KEY='lews_tracker_v82_users';
 const SESSION_KEY='lews_tracker_v82_session';
@@ -1708,21 +2037,22 @@ let currentUser=null;
 // PBKDF2: 100k iterations + unique random salt per user (browser-native, slow-hash)
 function _hex(buf){return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 function _unhex(s){return new Uint8Array(s.match(/.{2}/g).map(h=>parseInt(h,16)))}
-async function hashPwd(pwd,saltHex){
-  const salt=saltHex?_unhex(saltHex):crypto.getRandomValues(new Uint8Array(16));
-  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pwd),{name:'PBKDF2'},false,['deriveBits']);
-  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},key,256);
-  return {hash:_hex(bits),salt:_hex(salt)};
-}
-async function verifyPwd(pwd,storedHash,storedSalt){
-  const result=await hashPwd(pwd,storedSalt);
-  return result.hash===storedHash;
-}
+async function sha256Hex(str){if(window.crypto&&crypto.subtle){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return _hex(buf);}let h1=0x811c9dc5,h2=0x01000193;for(let i=0;i<str.length;i++){const c=str.charCodeAt(i);h1^=c;h1=Math.imul(h1,0x01000193);h2=(h2+c+((h2<<5)-h2))|0;}const a=(h1>>>0).toString(16).padStart(8,'0'),b=(h2>>>0).toString(16).padStart(8,'0');return(a+b+a+b).padEnd(64,'0').slice(0,64);}
+async function hashPwd(pwd,saltHex){if(window.crypto&&crypto.subtle&&crypto.getRandomValues){const salt=saltHex?_unhex(saltHex):crypto.getRandomValues(new Uint8Array(16));const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pwd),{name:'PBKDF2'},false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},key,256);return{hash:_hex(bits),salt:_hex(salt),algo:'PBKDF2'};}const salt=saltHex||('fallback-'+Date.now()+'-'+Math.random());return{hash:await sha256Hex(salt+'|'+pwd),salt,algo:'FALLBACK'};}
+async function verifyPwd(pwd,storedHash,storedSalt){if(storedSalt){const result=await hashPwd(pwd,storedSalt);if(result.hash===storedHash)return true;}if(!storedSalt&&storedHash){const legacy=await sha256Hex(pwd);if(legacy===storedHash)return true;}return false;}
 function getUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||'[]')}catch{return[]}}
 function saveUsers(u){localStorage.setItem(USERS_KEY,JSON.stringify(u))}
-function getSession(){try{const s=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');return s&&s.expires>Date.now()?s:null}catch{return null}}
-function setSession(u){var days=document.getElementById('rememberMe')&&document.getElementById('rememberMe').checked?365:30;localStorage.setItem(SESSION_KEY,JSON.stringify({username:u,expires:Date.now()+days*864e5}))}
-function clearSession(){localStorage.removeItem(SESSION_KEY)}
+function getSession(){
+  try{const raw=sessionStorage.getItem(SESSION_KEY)||localStorage.getItem(SESSION_KEY)||'null';const s=JSON.parse(raw);return s&&s.expires>Date.now()?s:null}catch{return null}
+}
+function setSession(u){
+  const remember=document.getElementById('rememberMe')&&document.getElementById('rememberMe').checked;
+  const expires=Date.now()+(remember?365*864e5:12*60*60*1000);
+  const payload=JSON.stringify({username:u,expires,remember});
+  sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem(SESSION_KEY);
+  if(remember)localStorage.setItem(SESSION_KEY,payload);else sessionStorage.setItem(SESSION_KEY,payload);
+}
+function clearSession(){localStorage.removeItem(SESSION_KEY);sessionStorage.removeItem(SESSION_KEY)}
 
 function showLoginError(m){const el=document.getElementById('loginErr');if(el){el.textContent=m;}}
 function showRegError(m){const el=document.getElementById('regErr');if(el){el.textContent=m;}}
@@ -1740,7 +2070,8 @@ function showSignIn(){
 
 // renderQuickUsers removed in v8.5 — user list hidden for security
 
-async function doLogin(){
+async function doLogin(){const btn=setAuthBusy('Signing in…');try{await doLogin_core();}catch(e){const msg=e&&(e.message||e)?(e.message||e):'Unknown error';const target=document.getElementById('loginErr');if(target)target.textContent='Error: '+msg;}finally{clearAuthBusy(btn);}}
+async function doLogin_core(){
   const username=(document.getElementById('loginUsername').value||'').trim();
   const password=document.getElementById('loginPassword').value||'';
   if(!username||!password){showLoginError('Enter username and password');return;}
@@ -1756,7 +2087,8 @@ async function doLogin(){
 document.getElementById('loginPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('loginUsername')?.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPassword').focus();});
 
-async function doRegister(){
+async function doRegister(){const btn=setAuthBusy('Creating…');try{await doRegister_core();}catch(e){const msg=e&&(e.message||e)?(e.message||e):'Unknown error';const target=document.getElementById('regErr');if(target)target.textContent='Error: '+msg;}finally{clearAuthBusy(btn);}}
+async function doRegister_core(){
   const username=(document.getElementById('regUsername').value||'').trim();
   const pwd=document.getElementById('regPassword').value||'';
   const pwd2=document.getElementById('regPassword2').value||'';
@@ -1809,6 +2141,12 @@ function doLogout(){
   location.reload();
 }
 
+function doGuestLogin(){
+  currentUser='guest';
+  // No session saved — guest is always temporary
+  enterApp();
+}
+
 function isAdmin(){return currentUser&&currentUser.toLowerCase()==='lew';}
 function renderUsers(){
   const el=document.getElementById('usersList');
@@ -1839,11 +2177,41 @@ function removeUser(username){
 
 function enterApp(){
   STORE=dataKey(currentUser);
-  data=load();
-  // Hide login screen
+  // Hide login screen immediately
   const ls=document.getElementById('loginScreen');
   if(ls)ls.classList.remove('show');
-  // Init app
+  // For cloud users — try to load from Google Sheets first
+  if(isCloudUser(currentUser)){
+    toastMsg('☁️ Loading your cloud data...');
+    gsLoad(currentUser).then(cloudData=>{
+      if(cloudData){
+        data=Object.assign(structuredClone(DEF),cloudData);
+        data.templates=data.templates||structuredClone(defaultTemplates);
+        data.settings=Object.assign(structuredClone(DEF.settings),data.settings||{});
+        data.trash=data.trash||[];
+        // Also cache locally as backup
+        localStorage.setItem(STORE,JSON.stringify(data));
+        toastMsg('☁️ Cloud data loaded ✓');
+      }else{
+        // No cloud data yet — use localStorage or fresh start
+        data=load();
+        toastMsg('Starting fresh — your data will sync to cloud on first save.');
+      }
+      _finishEnterApp();
+    }).catch(()=>{
+      // Cloud failed — fall back to localStorage
+      data=load();
+      toastMsg('⚠️ Cloud unavailable — using local backup');
+      _finishEnterApp();
+    });
+  }else{
+    // Guest — localStorage only
+    data=load();
+    _finishEnterApp();
+  }
+}
+
+function _finishEnterApp(){
   initNav();
   applySettings();
   // Intro — use per-user seen flag stored in settings
@@ -2229,7 +2597,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 function showRecErr(m){const el=document.getElementById('recErr');if(el)el.textContent=m;}
 
-async function doRecovery(){
+async function doRecovery(){const btn=setAuthBusy('Resetting…');try{await doRecovery_core();}catch(e){const msg=e&&(e.message||e)?(e.message||e):'Unknown error';const target=document.getElementById('recErr');if(target)target.textContent='Error: '+msg;}finally{clearAuthBusy(btn);}}
+async function doRecovery_core(){
   const username=(document.getElementById('recUsername').value||'').trim();
   const secAnswer=(document.getElementById('recSecA').value||'').trim().toLowerCase();
   const masterCode=document.getElementById('recMasterCode').value||'';
@@ -2288,6 +2657,17 @@ async function doRecovery(){
     }
     clearSession();
   }
+  // ── Seed default admin account if no users exist ─────────────────────────
+  (async function seedDefaultAdmin(){
+    const users=getUsers();
+    if(users.length===0){
+      // Default account: username = lew, password = lew1234
+      // Change password after first login via Settings > Change Password
+      const {hash,salt}=await hashPwd('lew1234');
+      const defaultUser={username:'lew',hash,salt,created:Date.now()};
+      saveUsers([defaultUser]);
+    }
+  })();
   // No valid session — show login
   if(ls)ls.classList.add('show');
   setTimeout(()=>document.getElementById('loginUsername')?.focus(),120);
@@ -2664,6 +3044,195 @@ function uStartClock(canvas){if(uClockRaf)cancelAnimationFrame(uClockRaf);var ct
 
 // PWA service worker registration
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{}));}
+
+// ── v8.8: Session Timeout (auto-logout after 30 min inactivity) ──────────────
+(function(){
+  const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+  let _inactivityTimer = null;
+  function resetInactivityTimer(){
+    if(_inactivityTimer) clearTimeout(_inactivityTimer);
+    if(!currentUser || currentUser === 'guest') return; // guest = no timeout
+    _inactivityTimer = setTimeout(()=>{
+      toastMsg('⏱ Signed out due to inactivity');
+      setTimeout(()=>{ if(typeof doLogout === 'function') doLogout(); }, 1500);
+    }, SESSION_TIMEOUT_MS);
+  }
+  ['mousedown','mousemove','keydown','touchstart','scroll','click'].forEach(e=>{
+    document.addEventListener(e, resetInactivityTimer, {passive:true});
+  });
+  // Start when user logs in
+  document.addEventListener('DOMContentLoaded', resetInactivityTimer);
+})();
+
+// ── v8.8: Cookie Consent ─────────────────────────────────────────────────────
+function acceptCookies(){
+  localStorage.setItem('lew_cookies_ok','1');
+  document.getElementById('cookieBanner').classList.add('hidden');
+}
+(function(){
+  if(!localStorage.getItem('lew_cookies_ok')){
+    setTimeout(()=>document.getElementById('cookieBanner').classList.remove('hidden'), 1200);
+  }
+})();
+
+// ── v8.8: Right-click Context Menu on Tasks ──────────────────────────────────
+let _ctxTaskId = null;
+const ctxMenu = document.getElementById('ctxMenu');
+document.addEventListener('contextmenu', e=>{
+  const taskEl = e.target.closest('.item[data-tid]');
+  if(!taskEl){ ctxMenu.style.display='none'; return; }
+  e.preventDefault();
+  _ctxTaskId = parseInt(taskEl.dataset.tid);
+  ctxMenu.style.left = Math.min(e.clientX, window.innerWidth - 180) + 'px';
+  ctxMenu.style.top = Math.min(e.clientY, window.innerHeight - 160) + 'px';
+  ctxMenu.style.display = 'block';
+});
+document.addEventListener('click', ()=>{ if(ctxMenu) ctxMenu.style.display='none'; });
+function ctxAction(action){
+  ctxMenu.style.display = 'none';
+  if(!_ctxTaskId) return;
+  const t = data.tasks.find(x=>x.id===_ctxTaskId);
+  if(!t) return;
+  if(action==='edit'){ openTask(_ctxTaskId); }
+  else if(action==='done'){ toggleDone(_ctxTaskId); }
+  else if(action==='focus'){ show('focus'); toastMsg('Focus set: '+t.title); }
+  else if(action==='delete'){ delTask(_ctxTaskId); }
+}
+
+// ── v8.8: Skeleton Loading (show on cloud load) ───────────────────────────────
+function showSkeleton(containerId){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = [1,2,3].map(()=>`
+    <div class="skeleton-card">
+      <div class="skeleton skeleton-row" style="width:60%;height:16px;margin-bottom:12px"></div>
+      <div class="skeleton skeleton-row" style="width:85%"></div>
+      <div class="skeleton skeleton-row" style="width:40%"></div>
+    </div>`).join('');
+}
+
+// ── v8.8: Melliea Theme Toggle ───────────────────────────────────────────────
+function toggleMellieaTheme(on){
+  document.body.classList.toggle('melliea', !!on);
+  if(data && data.settings) data.settings.mellieaTheme = !!on;
+  if(on) startFloatingHearts(); else stopFloatingHearts();
+}
+let _heartInterval = null;
+function startFloatingHearts(){
+  if(_heartInterval) return;
+  _heartInterval = setInterval(()=>{
+    if(document.hidden) return;
+    const h = document.createElement('div');
+    h.className = 'heart-float';
+    h.textContent = ['💕','💛','🌸','✨','💗'][Math.floor(Math.random()*5)];
+    h.style.left = (10 + Math.random()*80) + 'vw';
+    h.style.bottom = '60px';
+    h.style.fontSize = (.7 + Math.random()*.8) + 'rem';
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(), 4000);
+  }, 3000);
+}
+function stopFloatingHearts(){
+  if(_heartInterval){ clearInterval(_heartInterval); _heartInterval = null; }
+}
+
+// ── v8.8: Daily Love Quotes ──────────────────────────────────────────────────
+const LOVE_QUOTES = [
+  "Every day with you is my favourite day. So today is my new favourite day. 💛",
+  "You are my today and all of my tomorrows.",
+  "In all the world, there is no heart for me like yours.",
+  "You make every ordinary moment extraordinary.",
+  "Distance means nothing when someone means everything.",
+  "I look at you and see the rest of my life in front of my eyes.",
+  "The best thing to hold onto in life is each other.",
+  "You are the reason I smile every morning.",
+  "With you, I am home — wherever we are.",
+  "You are my calm in the middle of every storm. 🌸",
+  "Every task I finish, every deadline I meet — it's for us. 💕",
+  "You inspire me to build better things, including myself.",
+  "Some things are just meant to be — and so are we.",
+  "The world is better because you are in it.",
+  "You are not just my love, you are my greatest adventure.",
+];
+function getDailyQuote(){
+  const dayIndex = Math.floor(Date.now() / 86400000) % LOVE_QUOTES.length;
+  return LOVE_QUOTES[dayIndex];
+}
+
+// ── v8.8: Dedication Page ─────────────────────────────────────────────────────
+// Opened via the subtle "✦ Inspired by Melliea" button in the sidebar
+function openDedication(){
+  const overlay = document.getElementById('dedicationOverlay');
+  if(!overlay) return;
+  // Set daily quote
+  const quoteEl = document.getElementById('dedicationQuote');
+  if(quoteEl) quoteEl.textContent = '"' + getDailyQuote() + '"';
+  // Set countdown
+  updateDedicationCountdown();
+  overlay.classList.add('show');
+}
+function closeDedication(){
+  const overlay = document.getElementById('dedicationOverlay');
+  if(overlay) overlay.classList.remove('show');
+}
+function updateDedicationCountdown(){
+  const el = document.getElementById('dedicationCountdown');
+  if(!el) return;
+  // Anniversary: adjust date below when known
+  const ANNIVERSARY = '2024-06-14'; // ← update this
+  const BIRTHDAY = '1995-09-15';    // ← update this
+  const today2 = new Date(); today2.setHours(0,0,0,0);
+  const ann = new Date(ANNIVERSARY); ann.setFullYear(today2.getFullYear());
+  if(ann < today2) ann.setFullYear(today2.getFullYear()+1);
+  const bday = new Date(BIRTHDAY); bday.setFullYear(today2.getFullYear());
+  if(bday < today2) bday.setFullYear(today2.getFullYear()+1);
+  const daysToAnn = Math.ceil((ann-today2)/86400000);
+  const daysToBday = Math.ceil((bday-today2)/86400000);
+  el.innerHTML = `
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <div class="melliea-countdown">
+        <div class="count-num">${daysToAnn === 0 ? '🎉' : daysToAnn}</div>
+        <div class="count-label">${daysToAnn === 0 ? 'Happy Anniversary!' : 'days to Anniversary'}</div>
+      </div>
+      <div class="melliea-countdown">
+        <div class="count-num">${daysToBday === 0 ? '🎂' : daysToBday}</div>
+        <div class="count-label">${daysToBday === 0 ? 'Happy Birthday!' : 'days to Birthday'}</div>
+      </div>
+    </div>`;
+}
+
+// ── v8.8: Today Is Special Banner ────────────────────────────────────────────
+function checkSpecialDay(){
+  const ANNIVERSARY_DATE = '06-14'; // MM-DD ← update
+  const BIRTHDAY_DATE = '09-15';    // MM-DD ← update
+  const today3 = new Date();
+  const mmdd = String(today3.getMonth()+1).padStart(2,'0') + '-' + String(today3.getDate()).padStart(2,'0');
+  const banner = document.getElementById('specialBanner');
+  const msg = document.getElementById('specialBannerMsg');
+  if(!banner || !msg) return;
+  if(mmdd === ANNIVERSARY_DATE){
+    msg.textContent = '🎉 Happy Anniversary, Melliea! Today is extra special. 💕';
+    banner.classList.add('show');
+  } else if(mmdd === BIRTHDAY_DATE){
+    msg.textContent = '🎂 Happy Birthday, Melliea! Wishing you the most wonderful day! 🌸';
+    banner.classList.add('show');
+  }
+}
+
+// ── v8.8: Apply Melliea settings on login ────────────────────────────────────
+const _origFinishEnterApp = typeof _finishEnterApp === 'function' ? _finishEnterApp : null;
+// Patch _finishEnterApp to also apply melliea theme and check special day
+const _origFinishRef = window._finishEnterApp;
+document.addEventListener('DOMContentLoaded', ()=>{
+  // Check for special day after login
+  setTimeout(checkSpecialDay, 2000);
+});
+
+// Hook into applySettings to apply melliea theme
+const _origApplySettings = typeof applySettings === 'function' ? applySettings : null;
+
+// (dedication accessible via sidebar button)
+
 </script>
 <script src="sync.js"></script>
 </body>
