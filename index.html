@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#d8b76d">
-<meta name="description" content="Lew's Tracker — BIM Command Center. Tasks, focus timer, calendar, notes, finance budgets. Mobile-ready, cloud sync, multi-user.">
+<meta name="description" content="Lew's Tracker — BIM Command Center. Tasks, focus timer, calendar, notes, finance budgets. Mobile-ready, local-only, multi-user.">
 <meta name="keywords" content="BIM tracker, task manager, productivity, construction, design consultancy">
 <meta name="author" content="Lew">
 <!-- Open Graph / Social Share -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://louie186.github.io/L-tracker/">
 <meta property="og:title" content="Lew's Tracker — BIM Command Center">
-<meta property="og:description" content="Mobile-ready BIM task tracker with focus timer, calendar, notes, finance, and cloud sync.">
+<meta property="og:description" content="Mobile-ready BIM task tracker with focus timer, calendar, notes, finance, and local storage.">
 <meta property="og:image" content="https://louie186.github.io/L-tracker/icon-512.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Lew's Tracker — BIM Command Center">
-<meta name="twitter:description" content="Mobile-ready BIM task tracker with focus timer, calendar, notes, finance, and cloud sync.">
+<meta name="twitter:description" content="Mobile-ready BIM task tracker with focus timer, calendar, notes, finance, and local storage.">
 <link rel="manifest" href="manifest.json">
 <title>Lew's Tracker v8.8</title>
 <style>
@@ -585,7 +585,7 @@ body.density-ultra .card{padding:calc((13px - var(--compact)*3px)*.66)}
 
 <!-- ── Cookie Consent ─────────────────────────────────────────────────── -->
 <div id="cookieBanner" class="hidden">
-  <span>🍪 <b>This app</b> stores your data locally in your browser. No tracking. <a href="#" onclick="return false" style="color:var(--accent)">Learn more</a></span>
+  <span>🍪 <b>This app</b> stores your data locally in your browser. No tracking. Local-only mode. <a href="#" onclick="return false" style="color:var(--accent)">Learn more</a></span>
   <button class="btn primary" onclick="acceptCookies()">Got it</button>
 </div>
 
@@ -625,8 +625,8 @@ body.density-ultra .card{padding:calc((13px - var(--compact)*3px)*.66)}
   <div class="login-card">
     <div class="login-logo" id="loginLogoEl">L</div>
     <h2>Lew's Tracker</h2>
-    <div class="sub">v8.8 · Secure multi-user · Cloud sync</div>
-    <div class="login-secure-badge">🔐 Accounts sync to the cloud · Guest stays local</div>
+    <div class="sub">v8.8 · Secure multi-user · Local-only</div>
+    <div class="login-secure-badge">🔐 Local accounts · Data stays in this browser</div>
 
     <!-- Sign in form -->
     <div id="loginForm">
@@ -639,7 +639,7 @@ body.density-ultra .card{padding:calc((13px - var(--compact)*3px)*.66)}
       <div class="login-help">Tip: leave <b>Remember me</b> off if you want the login screen to return when the browser is closed.</div>
       <div class="login-divider">or</div>
       <button class="btn" onclick="doGuestLogin()" style="width:100%;justify-content:center;opacity:.7">👤 Continue as Guest</button>
-      <div class="login-help" style="margin-top:6px">Guest data is stored in this browser only and won't sync to the cloud.</div>
+      <div class="login-help" style="margin-top:6px">Guest data is stored in this browser only and won't save locally.</div>
     </div>
 
     <!-- Register form -->
@@ -1322,52 +1322,8 @@ let STORE=null; // set per-user after login
 const _DATA_PREFIX='lews_tracker_v82_data_';
 function dataKey(u){return _DATA_PREFIX+u}
 
-// ── Google Sheets Sync ────────────────────────────────────────────────────────
-const GS_API_KEY='AIzaSyDi-wMEaYCy8sgkUwql9MsSNSTrWjiJ7_g';
-const GS_SHEET_ID='1FjlvWO6Vgt9qBstScWqNdv7wVpvW52ec46VnPFjtMxY';
-const GS_BASE=`https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values`;
-
-function isCloudUser(u){return u&&u.toLowerCase()!=='guest';}
-
-// Read data for a user from Google Sheets (each user = one row: username | jsondata)
-async function gsLoad(username){
-  try{
-    const res=await fetch(`${GS_BASE}/Sheet1?key=${GS_API_KEY}`);
-    if(!res.ok)throw new Error('Sheets read failed');
-    const json=await res.json();
-    const rows=json.values||[];
-    const row=rows.find(r=>r[0]&&r[0].toLowerCase()===username.toLowerCase());
-    if(row&&row[1]){return JSON.parse(row[1]);}
-    return null;
-  }catch(e){console.warn('gsLoad error:',e);return null;}
-}
-
-// Write data for a user to Google Sheets
-async function gsSave(username,payload){
-  try{
-    // First find the row index
-    const res=await fetch(`${GS_BASE}/Sheet1?key=${GS_API_KEY}`);
-    if(!res.ok)throw new Error('Sheets read failed');
-    const json=await res.json();
-    const rows=json.values||[];
-    const rowIdx=rows.findIndex(r=>r[0]&&r[0].toLowerCase()===username.toLowerCase());
-    const range=rowIdx>=0?`Sheet1!A${rowIdx+1}:B${rowIdx+1}`:`Sheet1!A${rows.length+1}:B${rows.length+1}`;
-    const body={values:[[username,JSON.stringify(payload)]]};
-    await fetch(`${GS_BASE}/${encodeURIComponent(range)}?valueInputOption=RAW&key=${GS_API_KEY}`,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
-  }catch(e){console.warn('gsSave error:',e);toastMsg('⚠️ Cloud save failed — data saved locally as backup');}
-}
-
-// Debounced cloud save — waits 2s after last change before writing
-let _gsSaveTimer=null;
-function gsSaveDebounced(){
-  if(!isCloudUser(currentUser))return;
-  if(_gsSaveTimer)clearTimeout(_gsSaveTimer);
-  _gsSaveTimer=setTimeout(()=>gsSave(currentUser,data),2000);
-}
+// ── Local-only storage mode ─────────────────────────────────────────────────
+// Local-only removed: all account data is saved locally in this browser via localStorage.
 const TZ=[['Doha, Qatar','Asia/Qatar'],['Manila, Philippines','Asia/Manila'],['Dubai, UAE','Asia/Dubai'],['Riyadh, Saudi Arabia','Asia/Riyadh'],['UTC / GMT','UTC'],['London, UK','Europe/London'],['Paris, France','Europe/Paris'],['New York, USA','America/New_York'],['Los Angeles, USA','America/Los_Angeles'],['Toronto, Canada','America/Toronto'],['Tokyo, Japan','Asia/Tokyo'],['Singapore','Asia/Singapore'],['Hong Kong','Asia/Hong_Kong'],['Sydney, Australia','Australia/Sydney'],['Auckland, NZ','Pacific/Auckland']];
 const CURRENCIES={USD:'$',EUR:'€',GBP:'£',AUD:'A$',QAR:'QR ',AED:'AED ',PHP:'₱',SGD:'S$',JPY:'¥',CAD:'C$'};
 const defaultTemplates={'Model Review':['Confirm latest model version','Check coordinates / levels / grids','Review linked models','Run clash / QA check','Export issue screenshots','Update comments and status'],'Shop Drawing Check':['Confirm latest drawing revision','Check title block and references','Review dimensions and levels','Compare against model / specs','Mark comments','Prepare response or submission'],'Clash Coordination':['Load latest discipline models','Run clash test','Group issues by zone/system','Assign owner','Export screenshots/report','Follow up blockers'],'RFI Preparation':['Define question clearly','Attach screenshots/drawings','Reference grid/level/location','Propose recommendation','Assign recipient','Track response']};
@@ -1380,11 +1336,9 @@ const MOBILE_MAIN=['dashboard','tasks','focus','calendar'];
 
 function load(){try{let x=Object.assign(structuredClone(DEF),JSON.parse(localStorage.getItem(STORE)||'{}'));x.templates=x.templates||structuredClone(defaultTemplates);x.settings=Object.assign(structuredClone(DEF.settings),x.settings||{});x.trash=x.trash||[];return x}catch{return structuredClone(DEF)}}
 function save(){
-  // Always save to localStorage as backup
-  if(STORE)localStorage.setItem(STORE,JSON.stringify(data));
-  stats();storage();
-  // Cloud save for all non-guest users
-  if(isCloudUser(currentUser))gsSaveDebounced();
+  // Local-only save: persist this user's data in this browser.
+  if(STORE&&data)localStorage.setItem(STORE,JSON.stringify(data));
+  try{stats();storage();}catch(e){console.warn('post-save UI refresh skipped:',e);}
 }
 function dateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function today(){return dateKey(new Date())}
@@ -1497,19 +1451,34 @@ const brandLogoInput=document.getElementById('brandLogoInput');
 const financePassInput=document.getElementById('financePassInput');
 const noteModalTitle=document.getElementById('noteModalTitle');
 const taskModalTitle=document.getElementById('taskModalTitle');
-// Robust DOM references for form controls that were previously relying on browser window.id globals
-const eventInput=document.getElementById('eventInput');
-const taskFiles=document.getElementById('taskFiles');
-const templateList=document.getElementById('templateList');
-const budgetName=document.getElementById('budgetName');
-const budgetType=document.getElementById('budgetType');
-const budgetCurrency=document.getElementById('budgetCurrency');
-const bgStyleSelect=document.getElementById('bgStyleSelect');
-const densitySelect=document.getElementById('densitySelect');
-const animLevelSelect=document.getElementById('animLevelSelect');
-const rowStyleSelect=document.getElementById('rowStyleSelect');
-const iconStyleSelect=document.getElementById('iconStyleSelect');
-const customCssBox=document.getElementById('customCssBox');
+// Robust DOM references — required because not all browsers reliably expose id="..." as global variables
+const $id=(id)=>document.getElementById(id);
+const eventInput=$id('eventInput');
+const taskFiles=$id('taskFiles');
+const taskExistingFiles=$id('taskExistingFiles');
+const templateList=$id('templateList');
+const templateTitle=$id('templateTitle');
+const budgetName=$id('budgetName');
+const budgetType=$id('budgetType');
+const budgetCurrency=$id('budgetCurrency');
+const doneBar=$id('doneBar');
+const timerTxt=$id('timerTxt');
+const timerRing=$id('timerRing');
+const localClock=$id('localClock');
+const localGmt=$id('localGmt');
+const worldCards=$id('worldCards');
+const worldModalTitle=$id('worldModalTitle');
+const worldZone=$id('worldZone');
+const noteEditorTitle=$id('noteEditorTitle');
+const bgStyleSelect=$id('bgStyleSelect');
+const densitySelect=$id('densitySelect');
+const animLevelSelect=$id('animLevelSelect');
+const rowStyleSelect=$id('rowStyleSelect');
+const iconStyleSelect=$id('iconStyleSelect');
+const customCssBox=$id('customCssBox');
+// Make file-input globals explicit for inline onclick handlers like importFile.click()
+window.importFile=$id('importFile');
+window.themeImportFile=$id('themeImportFile');
 
 
 // ── Navigation ────────────────────────────────────────────────────────────────
@@ -1746,7 +1715,7 @@ function setRadius(v){data.settings.radius=Number(v);document.documentElement.st
 function setCompact(v){data.settings.compact=!!v;document.documentElement.style.setProperty('--compact',v?1:0);save()}
 function setGlass(v){data.settings.glass=!!v;document.body.classList.toggle('glass',!!v);document.documentElement.style.setProperty('--glass',v?1:0);save()}
 function togglePastel(v){
-  if(!data || !data.settings)return;
+  if(!data||!data.settings)return;
   data.settings.pastel=!!v;
   if(v){
     document.body.classList.add('pastel');
@@ -2302,30 +2271,9 @@ function enterApp(){
   const ls=document.getElementById('loginScreen');
   if(ls)ls.classList.remove('show');
 
-  // Start with local data immediately so Add/Edit/Delete works even if cloud is slow or blocked.
+  // Local-only: load this user's data from browser storage.
   data=load();
   _finishEnterApp();
-
-  // For cloud users, refresh from Google Sheets in the background.
-  if(isCloudUser(currentUser)){
-    toastMsg('☁️ Checking cloud data...');
-    gsLoad(currentUser).then(cloudData=>{
-      if(cloudData){
-        data=Object.assign(structuredClone(DEF),cloudData);
-        data.templates=data.templates||structuredClone(defaultTemplates);
-        data.settings=Object.assign(structuredClone(DEF.settings),data.settings||{});
-        data.trash=data.trash||[];
-        localStorage.setItem(STORE,JSON.stringify(data));
-        applySettings();
-        renderAll();
-        toastMsg('☁️ Cloud data loaded ✓');
-      }else{
-        toastMsg('Local data active — cloud will sync on save.');
-      }
-    }).catch(()=>{
-      toastMsg('⚠️ Cloud unavailable — local data active');
-    });
-  }
 }
 function _finishEnterApp(){
   initNav();
