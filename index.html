@@ -1176,21 +1176,21 @@ body.density-ultra .card{padding:calc((13px - var(--compact)*3px)*.66)}
       <div class="card">
         <h3>Security &amp; Account</h3>
         <div class="row" style="margin-bottom:14px">
-          <div class="user-chip">👤 <span id="currentUserLabel">—</span></div>
+          <div class="user-chip">👤 <span id="currentUserLabel2">—</span></div>
           <button class="btn danger" onclick="doLogout()">Sign Out</button>
         </div>
         <div class="divider"></div>
         <label class="small" style="display:block;margin:12px 0 6px">Change Password</label>
-        <input id="cpOld" type="password" placeholder="Current password" style="margin-bottom:8px">
-        <input id="cpNew" type="password" placeholder="New password (min 4 chars)" style="margin-bottom:8px">
-        <input id="cpNew2" type="password" placeholder="Confirm new password" style="margin-bottom:8px">
-        <button class="btn primary" onclick="changePassword()">Change Password</button>
-        <div class="login-err" id="cpErr" style="text-align:left;margin-top:8px"></div>
+        <input id="cpOld2" type="password" placeholder="Current password" style="margin-bottom:8px">
+        <input id="cpNew2b" type="password" placeholder="New password (min 4 chars)" style="margin-bottom:8px">
+        <input id="cpNew2Confirm" type="password" placeholder="Confirm new password" style="margin-bottom:8px">
+        <button class="btn primary" onclick="changePasswordFrom('cpOld2','cpNew2b','cpNew2Confirm','cpErr2')">Change Password</button>
+        <div class="login-err" id="cpErr2" style="text-align:left;margin-top:8px"></div>
       </div>
       <div class="card">
         <h3>Users &amp; Sharing</h3>
         <p class="small" style="margin-bottom:12px">Download your data to share your setup with another user. They import it from their account to load your tasks, templates, and settings.</p>
-        <div id="usersList" style="margin-bottom:12px"></div>
+        <div id="usersListSharing" style="margin-bottom:12px"></div>
         <div class="panel-actions">
           <button class="btn primary" onclick="exportData()">⬇ Download My Data</button>
           <button class="btn" onclick="importFile.click()">⬆ Import / Load Shared</button>
@@ -1497,6 +1497,20 @@ const brandLogoInput=document.getElementById('brandLogoInput');
 const financePassInput=document.getElementById('financePassInput');
 const noteModalTitle=document.getElementById('noteModalTitle');
 const taskModalTitle=document.getElementById('taskModalTitle');
+// Robust DOM references for form controls that were previously relying on browser window.id globals
+const eventInput=document.getElementById('eventInput');
+const taskFiles=document.getElementById('taskFiles');
+const templateList=document.getElementById('templateList');
+const budgetName=document.getElementById('budgetName');
+const budgetType=document.getElementById('budgetType');
+const budgetCurrency=document.getElementById('budgetCurrency');
+const bgStyleSelect=document.getElementById('bgStyleSelect');
+const densitySelect=document.getElementById('densitySelect');
+const animLevelSelect=document.getElementById('animLevelSelect');
+const rowStyleSelect=document.getElementById('rowStyleSelect');
+const iconStyleSelect=document.getElementById('iconStyleSelect');
+const customCssBox=document.getElementById('customCssBox');
+
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 function initNav(){
@@ -1602,7 +1616,7 @@ function renderTemplates(){if(!templateList)return;templateList.innerHTML=Object
 // ── Calendar ──────────────────────────────────────────────────────────────────
 function due(k){return data.tasks.map(ensure).filter(t=>t.due===k)}
 function addCalendarTask(title,k=selected){if(!title)return;createTask({title,priority:'medium',status:'todo',due:k,tags:['Calendar'],source:'calendar'});selected=k;toastMsg('Calendar task added')}
-function addEvent(){let v=eventInput.value.trim();if(!v)return;eventInput.value='';addCalendarTask(v,selected);save();renderAll()}
+function addEvent(){const el=document.getElementById('eventInput');let v=(el?.value||'').trim();if(!v)return;if(el)el.value='';addCalendarTask(v,selected);save();renderAll()}
 function moveMonth(n){current.setMonth(current.getMonth()+n);renderCalendar()}
 function renderCalendar(){if(!calendarGrid)return;calendarGrid.innerHTML='';['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>calendarGrid.innerHTML+=`<div class="weekday">${d}</div>`);let y=current.getFullYear(),m=current.getMonth(),start=new Date(y,m,1);monthLabel.textContent=current.toLocaleDateString('en-US',{month:'long',year:'numeric'});start.setDate(start.getDate()-start.getDay());for(let i=0;i<42;i++){let d=new Date(start);d.setDate(start.getDate()+i);let k=dateKey(d),du=due(k);calendarGrid.innerHTML+=`<div class="day ${d.getMonth()!==m?'muted':''} ${k===today()?'today':''} ${k===selected?'selected':''}" onclick="selected='${k}';renderAll()"><b>${d.getDate()}</b>${du.slice(0,3).map(t=>`<span class="mini">□ ${esc(t.title)}</span>`).join('')}</div>`}}
 function renderDay(){if(!dayList)return;selectedTitle.textContent='Tasks for '+selected;let arr=due(selected).map(t=>`<div class="item pri-${t.priority}"><div class="todo-text"><b>Task:</b> ${esc(t.title)}</div><button class="btn" onclick="show('tasks');openTaskId=${t.id};renderTasks()">Open</button></div>`);dayList.innerHTML=arr.join('')||'<div class="empty">No tasks this day.</div>'}
@@ -1698,7 +1712,7 @@ function renderInsights(){let tasks=data.tasks.map(ensure),open=tasks.filter(t=>
 function focus(){let list=data.tasks.map(ensure).filter(t=>t.status!=='done'&&(t.due<=today()||!t.due)).slice(0,3);focusTop.innerHTML=list.map((t,i)=>taskRow(t,i)).join('')||'<div class="empty">No focus items.</div>'}
 function stats(){let tasks=data.tasks.map(ensure),active=tasks.filter(t=>t.status!=='done'),overdue=tasks.filter(t=>t.status!=='done'&&t.due<today());countUp(kOpen,active.length);countUp(kOverdue,overdue.length);countUp(kToday,due(today()).filter(t=>ensure(t).status!=='done').length);countUp(kPendingPay,paidPendingCount());todayTxt.textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
 function storage(){let bytes=new Blob([JSON.stringify(data)]).size;storageBar.style.width=Math.min(100,bytes/45000)+'%';storageTxt.textContent=(bytes/1024).toFixed(1)+' KB'}
-function renderAll(){if(typeof updateWeekNum==="function")updateWeekNum();stats();storage();dashboard();focus();renderInsights();renderTasks();renderTemplates();renderCalendar();renderDay();renderNotes();renderBudgets();tickClock()}
+function renderAll(){if(!data)return;if(typeof updateWeekNum==="function")updateWeekNum();stats();storage();dashboard();focus();renderInsights();renderTasks();renderTemplates();renderCalendar();renderDay();renderNotes();renderBudgets();tickClock()}
 
 // ── Focus timer (ring) ────────────────────────────────────────────────────────
 function settingsFocus(){return Number(data.settings.focusDefault||45)}
@@ -1731,6 +1745,20 @@ function setAccent(v){data.settings.accent=v;document.documentElement.style.setP
 function setRadius(v){data.settings.radius=Number(v);document.documentElement.style.setProperty('--r',v+'px');save()}
 function setCompact(v){data.settings.compact=!!v;document.documentElement.style.setProperty('--compact',v?1:0);save()}
 function setGlass(v){data.settings.glass=!!v;document.body.classList.toggle('glass',!!v);document.documentElement.style.setProperty('--glass',v?1:0);save()}
+function togglePastel(v){
+  if(!data || !data.settings)return;
+  data.settings.pastel=!!v;
+  if(v){
+    document.body.classList.add('pastel');
+    document.body.classList.remove('light');
+    data.settings.theme='pastel';
+  }else{
+    document.body.classList.remove('pastel');
+    data.settings.theme=document.body.classList.contains('light')?'light':'dark';
+  }
+  save();
+}
+
 function setReduceMotion(v){data.settings.reduceMotion=!!v;document.body.classList.toggle('reduce-motion',!!v);save()}
 function setFocusDefault(v){data.settings.focusDefault=Math.max(5,Math.min(120,Number(v||45)));save();resetTimer()}
 function setIntroReplay(v){data.settings.introAlways=!!v;save()}
@@ -1931,7 +1959,7 @@ td{padding:5px 9px;border:1px solid #DDD;vertical-align:top}
     h += '</table>';
   }
 
-  h += `<p class="foot">Lew's Tracker v8.5 &nbsp;·&nbsp; ${new Date().toLocaleString()} &nbsp;·&nbsp; For Melliea &#9825;</p></body></html>`;
+  h += `<p class="foot">Lew's Tracker v8.5 &nbsp;·&nbsp; ${new Date().toLocaleString()} &nbsp;·&nbsp; For Melliea &#9825;</p><\/body><\/html>`;
 
   const blob = new Blob(['﻿' + h], { type:'application/msword' });
   const url = URL.createObjectURL(blob);
@@ -1972,7 +2000,7 @@ function resetAppearanceOnly(){if(!confirm('Reset appearance only? Tasks, notes,
 function exportTheme(){const keys=['theme','pastel','scale','tabScale','financeScale','compact','glass','reduceMotion','autoTheme','accent','accent2','radius','font','bgStyle','density','animLevel','rowStyle','iconStyle','brandTitle','brandSub','brandLogo','customCss'];const theme={_type:'lews-tracker-theme',_version:'v8.7'};keys.forEach(k=>theme[k]=data.settings[k]);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(theme,null,2)],{type:'application/json'}));a.download='lews-tracker-theme-'+today()+'.json';a.click();URL.revokeObjectURL(a.href);toastMsg('Theme exported');}
 function importTheme(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const theme=JSON.parse(r.result);if(theme._type!=='lews-tracker-theme'&&!confirm('This does not look like a theme file. Import anyway?'))return;Object.assign(data.settings,theme);delete data.settings._type;delete data.settings._version;applySettings();save();toastMsg('Theme imported');}catch{alert('Invalid theme JSON')}};r.readAsText(f);e.target.value='';}
 // ── Apply settings on load ────────────────────────────────────────────────────
-function applySettings(){const s=data.settings;if(s.pastel){document.body.classList.add('pastel');document.body.classList.remove('light');}else if(s.theme==='light'){document.body.classList.add('light');document.body.classList.remove('pastel');}else{document.body.classList.remove('light','pastel');}if(s.glass)document.body.classList.add('glass');document.documentElement.style.setProperty('--fs',s.scale||1);document.documentElement.style.setProperty('--tabscale',s.tabScale||1);document.documentElement.style.setProperty('--finScale',s.financeScale||1);document.documentElement.style.setProperty('--accent',s.accent||'#d8b76d');document.documentElement.style.setProperty('--accent2',s.accent2||'#ff9655');document.documentElement.style.setProperty('--r',(s.radius||22)+'px');document.documentElement.style.setProperty('--compact',s.compact?1:0);document.documentElement.style.setProperty('--glass',s.glass?1:0);document.documentElement.style.setProperty('--font',s.font||DEF.settings.font);if(fontRange)fontRange.value=Math.round((s.scale||1)*100);if(fontLabel)fontLabel.textContent=fontRange.value+'%';if(tabScaleRange)tabScaleRange.value=Math.round((s.tabScale||1)*100);if(tabScaleLabel)tabScaleLabel.textContent=tabScaleRange.value+'%';if(financeScaleRange)financeScaleRange.value=Math.round((s.financeScale||1)*100);if(financeScaleLabel)financeScaleLabel.textContent=financeScaleRange.value+'%';if(fontSelect)fontSelect.value=s.font||DEF.settings.font;if(accentSelect)accentSelect.value=s.accent||'#d8b76d';if(accentPicker)accentPicker.value=s.accent||'#d8b76d';if(radiusRange)radiusRange.value=s.radius||22;if(compactToggle)compactToggle.checked=!!s.compact;if(glassToggle)glassToggle.checked=!!s.glass;if(autoThemeToggle)autoThemeToggle.checked=!!s.autoTheme;if(reduceMotionToggle)reduceMotionToggle.checked=!!s.reduceMotion;if(introToggle)introToggle.checked=!!s.introAlways;var pastelT=document.getElementById("pastelToggle");if(pastelT)pastelT.checked=!!s.pastel;var mellieaT=document.getElementById("mellieaToggle");if(mellieaT)mellieaT.checked=!!s.mellieaTheme;toggleMellieaTheme(!!s.mellieaTheme);if(autoBackupHint)autoBackupHint.checked=!!s.backupHint;if(defaultView)defaultView.value=s.defaultView||'dashboard';if(focusDefault)focusDefault.value=s.focusDefault||45;const ps=document.getElementById('petAutoShow');if(ps)ps.checked=!!s.petAutoShow;const pm=document.getElementById('petModeSelect');if(pm)pm.value=s.petMode||'gamepad';const psr=document.getElementById('petSizeRange');if(psr){psr.value=Math.round((s.petScale||1)*100);const pl=document.getElementById('petSizeLbl');if(pl)pl.textContent=psr.value+'%';}const por=document.getElementById('petOpRange');if(por){por.value=Math.round((s.petOpacity||1)*100);const ol=document.getElementById('petOpLbl');if(ol)ol.textContent=por.value+'%';}const css=document.getElementById('clockStyleSelect');if(css)css.value=s.clockStyle||0;document.documentElement.style.setProperty('--pet-scale',s.petScale||1);document.documentElement.style.setProperty('--pet-opacity',s.petOpacity||1);if(taskSort)taskSort.value=s.sort||'dueAsc';const ul=document.getElementById('currentUserLabel');if(ul&&currentUser)ul.textContent=currentUser;// Auto system theme listener
+function applySettings(){const s=data.settings;if(s.pastel){document.body.classList.add('pastel');document.body.classList.remove('light');}else if(s.theme==='light'){document.body.classList.add('light');document.body.classList.remove('pastel');}else{document.body.classList.remove('light','pastel');}if(s.glass)document.body.classList.add('glass');document.documentElement.style.setProperty('--fs',s.scale||1);document.documentElement.style.setProperty('--tabscale',s.tabScale||1);document.documentElement.style.setProperty('--finScale',s.financeScale||1);document.documentElement.style.setProperty('--accent',s.accent||'#d8b76d');document.documentElement.style.setProperty('--accent2',s.accent2||'#ff9655');document.documentElement.style.setProperty('--r',(s.radius||22)+'px');document.documentElement.style.setProperty('--compact',s.compact?1:0);document.documentElement.style.setProperty('--glass',s.glass?1:0);document.documentElement.style.setProperty('--font',s.font||DEF.settings.font);if(fontRange)fontRange.value=Math.round((s.scale||1)*100);if(fontLabel)fontLabel.textContent=fontRange.value+'%';if(tabScaleRange)tabScaleRange.value=Math.round((s.tabScale||1)*100);if(tabScaleLabel)tabScaleLabel.textContent=tabScaleRange.value+'%';if(financeScaleRange)financeScaleRange.value=Math.round((s.financeScale||1)*100);if(financeScaleLabel)financeScaleLabel.textContent=financeScaleRange.value+'%';if(fontSelect)fontSelect.value=s.font||DEF.settings.font;if(accentSelect)accentSelect.value=s.accent||'#d8b76d';if(accentPicker)accentPicker.value=s.accent||'#d8b76d';if(radiusRange)radiusRange.value=s.radius||22;if(compactToggle)compactToggle.checked=!!s.compact;if(glassToggle)glassToggle.checked=!!s.glass;if(autoThemeToggle)autoThemeToggle.checked=!!s.autoTheme;if(reduceMotionToggle)reduceMotionToggle.checked=!!s.reduceMotion;if(introToggle)introToggle.checked=!!s.introAlways;var pastelT=document.getElementById("pastelToggle");if(pastelT)pastelT.checked=!!s.pastel;var mellieaT=document.getElementById("mellieaToggle");if(mellieaT)mellieaT.checked=!!s.mellieaTheme;toggleMellieaTheme(!!s.mellieaTheme);if(autoBackupHint)autoBackupHint.checked=!!s.backupHint;if(defaultView)defaultView.value=s.defaultView||'dashboard';if(focusDefault)focusDefault.value=s.focusDefault||45;const ps=document.getElementById('petAutoShow');if(ps)ps.checked=!!s.petAutoShow;const pm=document.getElementById('petModeSelect');if(pm)pm.value=s.petMode||'gamepad';const psr=document.getElementById('petSizeRange');if(psr){psr.value=Math.round((s.petScale||1)*100);const pl=document.getElementById('petSizeLbl');if(pl)pl.textContent=psr.value+'%';}const por=document.getElementById('petOpRange');if(por){por.value=Math.round((s.petOpacity||1)*100);const ol=document.getElementById('petOpLbl');if(ol)ol.textContent=por.value+'%';}const css=document.getElementById('clockStyleSelect');if(css)css.value=s.clockStyle||0;document.documentElement.style.setProperty('--pet-scale',s.petScale||1);document.documentElement.style.setProperty('--pet-opacity',s.petOpacity||1);if(taskSort)taskSort.value=s.sort||'dueAsc';document.querySelectorAll('#currentUserLabel,#currentUserLabel2').forEach(ul=>{if(currentUser)ul.textContent=currentUser;});// Auto system theme listener
   applyAppearanceClasses();applyBranding();applyCustomCss();renderAppearancePresets();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{if(data.settings.autoTheme){document.body.classList.toggle('light',!e.matches);data.settings.theme=e.matches?'dark':'light';save();}});}}
 
 
@@ -2202,11 +2230,12 @@ async function doRegister_core(){
 }
 document.getElementById('regPassword2')?.addEventListener('keydown',e=>{if(e.key==='Enter')doRegister();});
 
-async function changePassword(){
-  const old=document.getElementById('cpOld')?.value||'';
-  const nw=document.getElementById('cpNew')?.value||'';
-  const nw2=document.getElementById('cpNew2')?.value||'';
-  const el=document.getElementById('cpErr');
+async function changePassword(){return changePasswordFrom('cpOld','cpNew','cpNew2','cpErr');}
+async function changePasswordFrom(oldId,newId,new2Id,errId){
+  const old=document.getElementById(oldId)?.value||'';
+  const nw=document.getElementById(newId)?.value||'';
+  const nw2=document.getElementById(new2Id)?.value||'';
+  const el=document.getElementById(errId);
   const setErr=m=>{if(el)el.textContent=m;};
   if(!old||!nw){setErr('Fill in all fields');return;}
   if(nw.length<4){setErr('New password min 4 chars');return;}
@@ -2220,7 +2249,7 @@ async function changePassword(){
   user.hash=newHash;user.salt=newSalt;
   saveUsers(users);
   if(el)el.textContent='';
-  ['cpOld','cpNew','cpNew2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  [oldId,newId,new2Id].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   toastMsg('Password changed ✓');
 }
 
@@ -2240,8 +2269,9 @@ function doGuestLogin(){
 
 function isAdmin(){return currentUser&&currentUser.toLowerCase()==='lew';}
 function renderUsers(){
-  const el=document.getElementById('usersList');
-  if(!el)return;
+  const containers=[document.getElementById('usersList'),document.getElementById('usersListSharing')].filter(Boolean);
+  if(!containers.length)return;
+  const el=containers[0];
   const users=getUsers();
   const admin=isAdmin();
   el.innerHTML=users.map(u=>{
@@ -2253,6 +2283,7 @@ function renderUsers(){
     '</div>';
   }).join('')||'<div class="empty">No other users.</div>';
   if(!admin){el.insertAdjacentHTML('beforeend','<p class="small" style="margin-top:8px;opacity:.5">Only the admin (Lew) can manage other accounts.</p>');}
+  containers.slice(1).forEach(c=>{c.innerHTML=el.innerHTML;});
 }
 
 function removeUser(username){
@@ -2268,40 +2299,34 @@ function removeUser(username){
 
 function enterApp(){
   STORE=dataKey(currentUser);
-  // Hide login screen immediately
   const ls=document.getElementById('loginScreen');
   if(ls)ls.classList.remove('show');
-  // For cloud users — try to load from Google Sheets first
+
+  // Start with local data immediately so Add/Edit/Delete works even if cloud is slow or blocked.
+  data=load();
+  _finishEnterApp();
+
+  // For cloud users, refresh from Google Sheets in the background.
   if(isCloudUser(currentUser)){
-    toastMsg('☁️ Loading your cloud data...');
+    toastMsg('☁️ Checking cloud data...');
     gsLoad(currentUser).then(cloudData=>{
       if(cloudData){
         data=Object.assign(structuredClone(DEF),cloudData);
         data.templates=data.templates||structuredClone(defaultTemplates);
         data.settings=Object.assign(structuredClone(DEF.settings),data.settings||{});
         data.trash=data.trash||[];
-        // Also cache locally as backup
         localStorage.setItem(STORE,JSON.stringify(data));
+        applySettings();
+        renderAll();
         toastMsg('☁️ Cloud data loaded ✓');
       }else{
-        // No cloud data yet — use localStorage or fresh start
-        data=load();
-        toastMsg('Starting fresh — your data will sync to cloud on first save.');
+        toastMsg('Local data active — cloud will sync on save.');
       }
-      _finishEnterApp();
     }).catch(()=>{
-      // Cloud failed — fall back to localStorage
-      data=load();
-      toastMsg('⚠️ Cloud unavailable — using local backup');
-      _finishEnterApp();
+      toastMsg('⚠️ Cloud unavailable — local data active');
     });
-  }else{
-    // Guest — localStorage only
-    data=load();
-    _finishEnterApp();
   }
 }
-
 function _finishEnterApp(){
   initNav();
   applySettings();
@@ -2322,8 +2347,7 @@ function _finishEnterApp(){
   if(isAdmin())setTimeout(function(){toastMsg('Admin mode active. You have full control.');},1200);
   setTimeout(function(){if(typeof updateCredBtn==='function')updateCredBtn();},100);
   // Update UI labels
-  const ul=document.getElementById('currentUserLabel');
-  if(ul)ul.textContent=currentUser;
+  document.querySelectorAll('#currentUserLabel,#currentUserLabel2').forEach(ul=>ul.textContent=currentUser);
   renderUsers();
   // v8.5: Restore pet if enabled or auto-show
   setTimeout(()=>{
